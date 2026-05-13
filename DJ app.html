@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Mixer Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00FFFF',
+                        secondary: '#FF00FF',
+                        accent: '#00FF00',
+                        neon: '#FFFF00'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Orbitron', monospace;
+            background: radial-gradient(circle at 20% 50%, #001122 0%, #000011 50%, #000000 100%);
+        }
+        
+        .dj-glow {
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.3),
+                0 0 40px rgba(0, 255, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .neon-text {
+            text-shadow: 
+                0 0 3px rgba(0, 255, 255, 0.3),
+                0 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #00FFFF 0%, #FF00FF 50%, #00FF00 100%);
+            height: 12px;
+            transition: width 0.3s ease;
+            border-radius: 6px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+        }
+        
+        .track-button {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .track-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .track-button:hover::before {
+            left: 100%;
+        }
+        
+        .track-button:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: #00FFFF;
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.4);
+        }
+        
+        .control-button {
+            transition: all 0.2s ease;
+            background: linear-gradient(145deg, #2a2a4a, #1a1a2a);
+            border: 2px solid #333;
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                inset 0 -1px 0 rgba(0,0,0,0.2);
+        }
+        
+        .control-button:hover {
+            box-shadow: 
+                0 6px 20px rgba(0,0,0,0.4),
+                0 0 20px rgba(0, 255, 255, 0.3),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .control-button:active {
+            transform: scale(0.95) translateY(1px);
+            box-shadow: 
+                0 2px 10px rgba(0,0,0,0.4),
+                inset 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .main-play-btn {
+            background: radial-gradient(circle at 30% 30%, #00FFFF, #0088CC);
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        .main-play-btn.playing {
+            background: radial-gradient(circle at 30% 30%, #FF00FF, #CC0088);
+        }
+        
+        @keyframes pulse-glow {
+            from {
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+            }
+            to {
+                box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+            }
+        }
+        
+        .eq-bar {
+            background: linear-gradient(to top, #FF00FF, #00FFFF);
+            width: 8px;
+            margin: 0 2px;
+            border-radius: 4px;
+            transition: height 0.1s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        
+        .volume-speed-panel {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 1px solid #333;
+            position: relative;
+        }
+        
+        .volume-speed-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            border-radius: inherit;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .volume-speed-panel:hover::before {
+            opacity: 1;
+        }
+        
+        .song-library {
+            background: linear-gradient(145deg, #0d1421, #1a1a2e);
+            border: 1px solid #333;
+        }
+        
+        .now-playing-panel {
+            background: linear-gradient(145deg, #1a1a2e, #0d1421);
+            border: 1px solid #333;
+            position: relative;
+        }
+        
+        .now-playing-panel::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(45deg, #00FFFF, #FF00FF, #00FF00, #FFFF00);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0.3;
+            filter: blur(10px);
+        }
+        
+        .logo-glow {
+            animation: logo-pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes logo-pulse {
+            0%, 100% { text-shadow: 0 0 20px #00FFFF, 0 0 30px #00FFFF, 0 0 40px #00FFFF; }
+            50% { text-shadow: 0 0 30px #FF00FF, 0 0 40px #FF00FF, 0 0 50px #FF00FF; }
+        }
+        
+        .vinyl-spin {
+            animation: spin 8s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Interactive Knobs */
+        .dj-knob {
+            transition: transform 0.1s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .dj-knob:hover {
+            box-shadow: 
+                0 0 25px rgba(0, 255, 255, 0.4),
+                0 0 50px rgba(0, 255, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .knob-indicator {
+            box-shadow: 
+                0 0 10px currentColor,
+                0 0 20px currentColor;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen">
+    <!-- Full Screen Music Player -->
+    <div class="min-h-screen p-4 flex flex-col">
+        
+        <!-- Header -->
+        <div class="text-center mb-2">
+            <h1 class="text-4xl font-black text-primary mb-1 logo-glow neon-text">🎧 DJ 混音台</h1>
+            <p class="text-lg text-gray-300 font-semibold tracking-wider">音樂混音</p>
+            <div class="flex justify-center space-x-1 mt-1">
+                <div class="eq-bar" style="height: 8px;"></div>
+                <div class="eq-bar" style="height: 12px;"></div>
+                <div class="eq-bar" style="height: 16px;"></div>
+                <div class="eq-bar" style="height: 10px;"></div>
+                <div class="eq-bar" style="height: 14px;"></div>
+                <div class="eq-bar" style="height: 18px;"></div>
+                <div class="eq-bar" style="height: 12px;"></div>
+                <div class="eq-bar" style="height: 8px;"></div>
+            </div>
+        </div>
+
+        <!-- Main Player Area -->
+        <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-3 max-w-6xl mx-auto w-full">
+            
+            <!-- Current Track Display -->
+            <div class="lg:col-span-2 now-playing-panel rounded-2xl p-4 shadow-2xl dj-glow">
+                <div class="text-center mb-3">
+                    <div class="text-2xl text-primary font-bold mb-2 neon-text tracking-wider">播放中</div>
+                    <div id="current-track" class="text-3xl font-black text-white mb-2 min-h-[2rem] neon-text">選擇歌曲</div>
+                    <div id="progress-container" class="bg-gray-900 rounded-full h-2 mb-2 border-2 border-gray-600 cursor-pointer relative hover:h-3 transition-all duration-200">
+                        <div id="progress-bar" class="progress-bar rounded-full" style="width: 0%;"></div>
+                        <!-- Invisible clickable area for better UX -->
+                        <div class="absolute inset-0 rounded-full"></div>
+                    </div>
+                    <div class="flex justify-between text-lg text-primary font-bold">
+                        <span id="current-time" class="neon-text">0:00</span>
+                        <span class="vinyl-spin text-2xl">💿</span>
+                        <span id="total-time" class="neon-text">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Main Controls -->
+                <div class="flex justify-center items-center space-x-6 mb-3">
+                    <button id="prev-btn" class="control-button text-white p-4 rounded-full text-3xl disabled:opacity-50 hover:scale-110 transition-transform">
+                        ⏮️
+                    </button>
+                    <button id="play-btn" class="main-play-btn control-button text-white p-6 rounded-full text-4xl font-black hover:scale-110 transition-transform">
+                        ▶️
+                    </button>
+                    <button id="next-btn" class="control-button text-white p-4 rounded-full text-3xl disabled:opacity-50 hover:scale-110 transition-transform">
+                        ⏭️
+                    </button>
+                </div>
+
+                <!-- Controls Layout: Volume/Speed + Sound Effects -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <!-- Volume Control -->
+                    <div class="volume-speed-panel rounded-xl p-3 dj-glow">
+                        <div class="text-center mb-2">
+                            <h3 class="text-2xl font-black text-primary mb-1 neon-text tracking-wider">🔊</h3>
+                            <div id="volume-display" class="text-3xl font-black text-accent neon-text mb-1">70%</div>
+                        </div>
+                        
+                        <!-- Interactive Volume Knob -->
+                        <div class="flex justify-center mb-2">
+                            <div class="relative">
+                                <div id="volume-knob" class="dj-knob w-52 h-52 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border-4 border-gray-600 relative" style="transform: rotate(189deg);">
+                                    <!-- Knob Surface -->
+                                    <div class="absolute inset-4 rounded-full bg-gradient-to-br from-gray-800 to-black border-2 border-gray-500">
+                                        <!-- Position Indicator -->
+                                        <div class="absolute top-3 left-1/2 transform -translate-x-1/2 w-3 h-6 bg-primary rounded-full knob-indicator"></div>
+                                        <!-- Center Circle -->
+                                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-cyan-700 knob-indicator flex items-center justify-center">
+                                            <span class="text-white text-2xl font-bold">🔊</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Knob Scale -->
+                                <div class="absolute -bottom-5 left-0 right-0 flex justify-between text-xl text-gray-400 font-bold">
+                                    <span>最大</span>
+                                    <span>最小</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Speed Control -->
+                    <div class="volume-speed-panel rounded-xl p-3 dj-glow">
+                        <div class="text-center mb-2">
+                            <h3 class="text-2xl font-black text-primary mb-1 neon-text tracking-wider">⚡</h3>
+                            <div id="speed-display" class="text-3xl font-black text-accent neon-text mb-1">正常</div>
+                        </div>
+                        
+                        <!-- Interactive Speed Knob -->
+                        <div class="flex justify-center mb-2">
+                            <div class="relative">
+                                <div id="speed-knob" class="dj-knob w-52 h-52 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border-4 border-gray-600 relative" style="transform: rotate(180deg);">
+                                    <!-- Knob Surface -->
+                                    <div class="absolute inset-4 rounded-full bg-gradient-to-br from-gray-800 to-black border-2 border-gray-500">
+                                        <!-- Position Indicator -->
+                                        <div class="absolute top-3 left-1/2 transform -translate-x-1/2 w-3 h-6 bg-secondary rounded-full knob-indicator"></div>
+                                        <!-- Center Circle -->
+                                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-secondary to-purple-700 knob-indicator flex items-center justify-center">
+                                            <span class="text-white text-2xl font-bold">⚡</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Knob Scale -->
+                                <div class="absolute -bottom-5 left-0 right-0 flex justify-between text-xl text-gray-400 font-bold">
+                                    <span>快</span>
+                                    <span>慢</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sound Effects Panel -->
+                    <div class="volume-speed-panel rounded-xl p-3 dj-glow">
+                        <div class="text-center mb-3">
+                            <h3 class="text-xl font-black text-primary mb-1 neon-text tracking-wider">音效</h3>
+                        </div>
+                        
+                        <!-- Sound Effect Buttons Grid -->
+                        <div class="grid grid-cols-2 gap-3" id="sound-effects-grid">
+                            <!-- Sound effect buttons will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Song Library -->
+            <div class="song-library rounded-2xl p-4 shadow-2xl dj-glow">
+                <h2 class="text-3xl font-black text-center text-primary mb-2 neon-text tracking-wider">🎵</h2>
+                <div class="text-center mb-3">
+                    <p class="text-lg text-accent font-bold neon-text">選擇音樂</p>
+                </div>
+                <div class="relative">
+                    <div class="space-y-2 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-gray-700 pr-2" id="song-library">
+                        <!-- Songs will be populated here -->
+                    </div>
+                    <!-- Scroll Indicator at Bottom -->
+                    <div class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent pointer-events-none flex items-end justify-center pb-1">
+                        <div class="text-primary font-bold text-sm neon-text animate-bounce">⬇️ 更多音樂 ⬇️</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Music player state
+        let currentAudio = null;
+        let isPlaying = false;
+        let currentTrackIndex = 0;
+        let volume = 0.7;
+        let playbackRate = 1.0;
+        let volumeKnobRotation = 189; // 70% position
+        let speedKnobRotation = 180; // Normal speed position
+        let savedVolume = 0; // To restore background music volume after sound effect
+        let currentSoundEffect = null; // Currently playing sound effect
+
+        // Real Audio Sound Effects Array
+        const soundEffects = [
+            { name: "驚喜", audioUrl: "https://pfst.cf2.poecdn.net/base/audio/780a38c67051195e2ed4e3e65d8834d20ebd82e6e39d707a182e3e9f874a74ef", emoji: "😲", color: "bg-orange-600" },
+            { name: "勝利", audioUrl: "https://pfst.cf2.poecdn.net/base/audio/fa19de5f635df203958da63d1b51d124d3c1572f8f86b5649cf39d28ee1cf2ee", emoji: "🏆", color: "bg-yellow-600" },
+            { name: "鼓聲", audioUrl: "https://pfst.cf2.poecdn.net/base/audio/af971b4473c7f7f7873a2807115123d7ca3538ced4455bf4f1dfbe106f0365d5", emoji: "🥁", color: "bg-red-600" },
+            { name: "懷疑", audioUrl: "https://pfst.cf2.poecdn.net/base/audio/32a19ded6f01c9c4214a24962c7c252bb969bb4fc9b70aac4ef7253acecfebcf", emoji: "🤔", color: "bg-purple-600" },
+            { name: "關鍵時刻", audioUrl: "https://pfst.cf2.poecdn.net/base/audio/22388ce352a1330457c1e8f4458bfa61fc2e01d4775d7a6f6b54cff7f23c7840", emoji: "⭐", color: "bg-green-600" },
+            { name: "失敗", audioUrl: "https://pfst.cf2.poecdn.net/base/audio/0100d7a81dd24a87856068c75c84fceed23a34b7b8c2310819d23dcc3205d2b8", emoji: "❌", color: "bg-gray-600" },
+            { name: "升級", audioUrl: "https://pfst.cf2.poecdn.net/base/audio/7efe0f5e7e892a4623417e579b2bf67c7d9579aae92f29a30354e0c57c519f01", emoji: "⬆️", color: "bg-blue-600" },
+            { name: "加分", audioUrl: "https://pfst.cf2.poecdn.net/base/audio/dd9faefd34742dbfaebce67c4717ac3dc498840ae42acb26ab3c05f19712e14b", emoji: "✔️", color: "bg-pink-600" }
+        ];
+
+        // Initialize Audio Context
+        let audioContext = null;
+
+        function initAudioContext() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log('Audio context initialized');
+                } catch (error) {
+                    console.error('Failed to create audio context:', error);
+                    return false;
+                }
+            }
+            
+            // Resume context if suspended (required for mobile browsers)
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    console.log('Audio context resumed');
+                }).catch(error => {
+                    console.error('Failed to resume audio context:', error);
+                });
+            }
+            
+            return true;
+        }
+
+        // Enhanced sound generation function
+        function playSimpleSound(frequency, duration = 0.5, type = 'sine', volume = 0.4) {
+            try {
+                if (!initAudioContext()) {
+                    throw new Error('Audio context not available');
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                // Better volume envelope for clearer sounds
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+                
+                console.log(`🔊 Sound played: ${frequency}Hz for ${duration}s (${type})`);
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Error playing sound:', error);
+                // Try fallback method
+                return playFallbackSound();
+            }
+        }
+
+        // Fallback sound method using HTML5 Audio with data URI
+        function playFallbackSound() {
+            try {
+                // Generate a simple beep using data URI
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.type = 'square';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.2);
+                
+                console.log('🔄 Fallback sound played');
+                return true;
+            } catch (error) {
+                console.error('❌ Fallback sound also failed:', error);
+                // Last resort: visual feedback only
+                console.log('🔇 Sound unavailable - visual feedback only');
+                return false;
+            }
+        }
+
+        // Track active sound effects
+        let activeSoundEffects = 0;
+        let originalBackgroundVolume = 0;
+
+        // Play real audio sound effects with background music volume control
+        function playRealAudioEffect(soundEffect) {
+            const { audioUrl, name, emoji } = soundEffect;
+            
+            console.log(`🔊 Playing real audio: ${name} (${emoji})`);
+            
+            try {
+                // Reduce background music volume when first sound effect starts
+                if (activeSoundEffects === 0 && currentAudio && isPlaying) {
+                    originalBackgroundVolume = currentAudio.volume;
+                    currentAudio.volume = originalBackgroundVolume * 0.25; // Reduce to 25% of original
+                    console.log(`🔇 Background music volume reduced to ${Math.round(currentAudio.volume * 100)}%`);
+                }
+                
+                activeSoundEffects++; // Track active sound effects
+                
+                // Create new audio element for the sound effect
+                const audio = new Audio(audioUrl);
+                audio.volume = 0.6; // Set volume for sound effects (reduced by 20%)
+                
+                // Play the audio
+                audio.play().then(() => {
+                    console.log(`✅ Successfully started: ${name}`);
+                }).catch(error => {
+                    console.error(`❌ Error playing ${name}:`, error);
+                    // Decrease counter and restore volume if this was the last effect
+                    activeSoundEffects--;
+                    restoreBackgroundVolumeIfNeeded();
+                    // Fallback to synthetic sound if real audio fails
+                    playFallbackSound();
+                });
+
+                // Restore background music volume when sound effect ends
+                audio.addEventListener('ended', () => {
+                    activeSoundEffects--;
+                    console.log(`🎵 Sound effect "${name}" ended. Active effects: ${activeSoundEffects}`);
+                    restoreBackgroundVolumeIfNeeded();
+                    audio.remove(); // Clean up
+                });
+
+                // Error handling
+                audio.addEventListener('error', (e) => {
+                    console.error(`❌ Audio error for ${name}:`, e);
+                    activeSoundEffects--;
+                    restoreBackgroundVolumeIfNeeded();
+                    playFallbackSound();
+                });
+
+            } catch (error) {
+                console.error(`❌ Error creating audio for ${name}:`, error);
+                playFallbackSound();
+            }
+        }
+
+        // Restore background music volume when no sound effects are playing
+        function restoreBackgroundVolumeIfNeeded() {
+            if (activeSoundEffects <= 0 && currentAudio && isPlaying && originalBackgroundVolume > 0) {
+                currentAudio.volume = originalBackgroundVolume;
+                console.log(`🔊 Background music volume restored to ${Math.round(currentAudio.volume * 100)}%`);
+                activeSoundEffects = 0; // Reset counter
+            }
+        }
+
+        const tracks = [
+            { name: "爵士樂 (慢)", url: "https://pfst.cf2.poecdn.net/base/audio/36024173403efaeb224a453925c0ec255298a9bfa66c2662dbd9e2f49d05696f", genre: "🎷 爵士樂", color: "bg-blue-600" },
+            { name: "藍調", url: "https://pfst.cf2.poecdn.net/base/audio/a7922f93a1edd5ac6405987522e4819aa4114312846d26a4fdfc13a8fbb08eeb", genre: "🎸 藍調", color: "bg-indigo-600" },
+            { name: "華爾茲", url: "https://pfst.cf2.poecdn.net/base/audio/027195c41332e25f0f36b88033a7cea9722e36d08c8d1985dcd5c8a4bb3be0e6", genre: "🎻 古典", color: "bg-purple-600" },
+            { name: "鄉村樂 (慢)", url: "https://pfst.cf2.poecdn.net/base/audio/6b665200bb1d947fd01032c0685565d2a7b8df4a51f010e20e", genre: "🤠 鄉村", color: "bg-yellow-600" },
+            { name: "Lo-fi", url: "https://pfst.cf2.poecdn.net/base/audio/b582beedd0553ad52fd89f05905c02489f06ae29d21d0427f25eef85ba9ce75f", genre: "🎧 Lo-fi", color: "bg-pink-600" },
+            { name: "爵士樂 (快)", url: "https://pfst.cf2.poecdn.net/base/audio/5d4de3ecaafdee488125b2df2af083586a47aed9206bac7482117090a5955a18", genre: "🎷 爵士樂", color: "bg-blue-600" },
+            { name: "節奏藍調", url: "https://pfst.cf2.poecdn.net/base/audio/63ea389b4c7183cfa2c4efb0b050468e9cdd96eb9a4dfaa99574e5565bca19ce", genre: "🎤 R&B", color: "bg-red-600" },
+            { name: "鄉村樂 (快)", url: "https://pfst.cf2.poecdn.net/base/audio/26d684915a5c160fb7f2b327a497d67f368a9d648e8a0a8f30cfc42d98db73b8", genre: "🤠 鄉村", color: "bg-yellow-600" },
+            { name: "古典音樂", url: "https://pfst.cf2.poecdn.net/base/audio/c104d4fca9149d80acaa024963b5c1391d555ba00fa08f584280ee12216646e5", genre: "🎻 古典", color: "bg-purple-600" },
+            { name: "雷鬼樂", url: "https://pfst.cf2.poecdn.net/base/audio/75c7fab4c07af8951d4206d907ae2cb5ab62c292aa0bdfabc345800d1afafd5f", genre: "🌴 雷鬼", color: "bg-green-600" },
+            { name: "民謠小提琴", url: "https://pfst.cf2.poecdn.net/base/audio/775cb7a22881cfd19b1bee33e11fb0040bfe79e02e63a31ca74c5c58955bd527", genre: "🎻 民謠", color: "bg-orange-600" }
+        ];
+
+        // Interactive Knob Setup
+        function setupKnob(knobId, isVolumeKnob) {
+            const knob = document.getElementById(knobId);
+            let isDragging = false;
+            let lastAngle = 0;
+            let currentRotation = isVolumeKnob ? volumeKnobRotation : speedKnobRotation;
+
+            function getAngle(clientX, clientY) {
+                const rect = knob.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const deltaX = clientX - centerX;
+                const deltaY = clientY - centerY;
+                return Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+            }
+
+            function handleStart(clientX, clientY, e) {
+                e.preventDefault();
+                isDragging = true;
+                lastAngle = getAngle(clientX, clientY);
+                knob.style.cursor = 'grabbing';
+            }
+
+            function handleMove(clientX, clientY, e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                const currentAngle = getAngle(clientX, clientY);
+                let deltaAngle = currentAngle - lastAngle;
+                
+                // Handle wrap-around
+                if (deltaAngle > 180) deltaAngle -= 360;
+                if (deltaAngle < -180) deltaAngle += 360;
+                
+                let newRotation = currentRotation + deltaAngle;
+                
+                // Limit rotation (45° to 315°)
+                newRotation = Math.max(45, Math.min(315, newRotation));
+                
+                // Update visuals
+                knob.style.transform = `rotate(${newRotation}deg)`;
+                
+                // Update audio values
+                if (isVolumeKnob) {
+                    volumeKnobRotation = newRotation;
+                    const volumePercent = ((newRotation - 45) / 270) * 100;
+                    updateVolume(volumePercent);
+                } else {
+                    speedKnobRotation = newRotation;
+                    const speedValue = 0.5 + ((newRotation - 45) / 270) * 1.5;
+                    updateSpeed(speedValue);
+                }
+                
+                lastAngle = currentAngle;
+                currentRotation = newRotation;
+            }
+
+            function handleEnd() {
+                isDragging = false;
+                knob.style.cursor = 'pointer';
+            }
+
+            // Mouse events
+            knob.addEventListener('mousedown', (e) => handleStart(e.clientX, e.clientY, e));
+            document.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY, e));
+            document.addEventListener('mouseup', handleEnd);
+
+            // Touch events
+            knob.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                handleStart(touch.clientX, touch.clientY, e);
+            });
+            document.addEventListener('touchmove', (e) => {
+                if (isDragging && e.touches[0]) {
+                    const touch = e.touches[0];
+                    handleMove(touch.clientX, touch.clientY, e);
+                }
+            });
+            document.addEventListener('touchend', handleEnd);
+        }
+
+        // Update knob position from preset buttons
+        function updateKnobPosition(knobId, value, isVolumeKnob) {
+            const knob = document.getElementById(knobId);
+            let rotation;
+            
+            if (isVolumeKnob) {
+                rotation = 45 + (value / 100) * 270;
+                volumeKnobRotation = rotation;
+            } else {
+                const normalizedSpeed = (value - 0.5) / 1.5;
+                rotation = 45 + normalizedSpeed * 270;
+                speedKnobRotation = rotation;
+            }
+            
+            knob.style.transform = `rotate(${rotation}deg)`;
+        }
+
+        // Format time helper
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds)) return "0:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Load and play track
+        async function loadTrack(trackIndex) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+
+            currentTrackIndex = trackIndex;
+            const track = tracks[trackIndex];
+            
+            document.getElementById('current-track').textContent = track.name;
+            
+            try {
+                currentAudio = new Audio(track.url);
+                
+                // Set track-specific volume adjustments
+                let trackVolume = volume;
+                if (track.name === "古典音樂") {
+                    trackVolume = volume * 20.0; // Increase classical music volume by 20x - EXTREMELY MASSIVE!
+                    console.log(`🎻 Classical music volume EXTREMELY MASSIVELY boosted to ${Math.round(trackVolume * 100)}% (NO LIMITS!)`);
+                }
+                
+                currentAudio.volume = trackVolume;
+                currentAudio.playbackRate = playbackRate;
+
+                currentAudio.addEventListener('loadedmetadata', () => {
+                    document.getElementById('total-time').textContent = formatTime(currentAudio.duration);
+                });
+
+                currentAudio.addEventListener('timeupdate', () => {
+                    if (currentAudio.duration) {
+                        const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+                        document.getElementById('progress-bar').style.width = `${progress}%`;
+                        document.getElementById('current-time').textContent = formatTime(currentAudio.currentTime);
+                    }
+                });
+
+                // Set loop to true for continuous playback
+                currentAudio.loop = true;
+                
+                currentAudio.addEventListener('ended', () => {
+                    // Backup loop handling in case loop property fails
+                    if (isPlaying) {
+                        currentAudio.currentTime = 0;
+                        currentAudio.play();
+                    }
+                });
+
+                // Automatically start playing the selected track
+                await currentAudio.play();
+                isPlaying = true;
+                updatePlayButton();
+                highlightCurrentTrack();
+
+                // Show visual feedback that track is playing
+                const vinyl = document.querySelector('.vinyl-spin');
+                vinyl.style.animationPlayState = 'running';
+
+            } catch (error) {
+                console.error('Error loading/playing track:', error);
+                
+                // For classical music, try again after a short delay to ensure it plays
+                if (track.name === "古典音樂") {
+                    console.log('🎻 Retrying classical music autoplay...');
+                    setTimeout(async () => {
+                        try {
+                            await currentAudio.play();
+                            isPlaying = true;
+                            updatePlayButton();
+                            const vinyl = document.querySelector('.vinyl-spin');
+                            vinyl.style.animationPlayState = 'running';
+                            console.log('🎻 Classical music autoplay successful on retry!');
+                        } catch (retryError) {
+                            console.log('🎻 Classical music autoplay blocked - user can click play button');
+                            isPlaying = false;
+                            updatePlayButton();
+                        }
+                    }, 100);
+                } else {
+                    // For other tracks, just load but don't play
+                    isPlaying = false;
+                    updatePlayButton();
+                }
+                
+                // Always show clean track name
+                document.getElementById('current-track').textContent = track.name;
+                highlightCurrentTrack();
+            }
+        }
+
+        function togglePlayPause() {
+            if (!currentAudio) return;
+
+            if (isPlaying) {
+                currentAudio.pause();
+                isPlaying = false;
+            } else {
+                currentAudio.play();
+                isPlaying = true;
+            }
+            updatePlayButton();
+        }
+
+        function updatePlayButton() {
+            const playBtn = document.getElementById('play-btn');
+            if (isPlaying) {
+                playBtn.textContent = '⏸️';
+                playBtn.classList.add('playing');
+            } else {
+                playBtn.textContent = '▶️';
+                playBtn.classList.remove('playing');
+            }
+        }
+
+        function nextTrack() {
+            const nextIndex = (currentTrackIndex + 1) % tracks.length;
+            loadTrack(nextIndex);
+        }
+
+        function prevTrack() {
+            const prevIndex = currentTrackIndex === 0 ? tracks.length - 1 : currentTrackIndex - 1;
+            loadTrack(prevIndex);
+        }
+
+        function updateVolume(value) {
+            volume = value / 100;
+            if (currentAudio) {
+                // Apply track-specific volume adjustments during playback
+                let trackVolume = volume;
+                const currentTrack = tracks[currentTrackIndex];
+                if (currentTrack && currentTrack.name === "古典音樂") {
+                    trackVolume = volume * 20.0; // Boost classical music by 20x - EXTREMELY MASSIVE!
+                    console.log(`🎻 Classical music volume EXTREMELY MASSIVELY adjusted to ${Math.round(trackVolume * 100)}% (NO LIMITS!) (boosted from ${Math.round(value)}%)`);
+                }
+                currentAudio.volume = trackVolume;
+            }
+            document.getElementById('volume-display').textContent = Math.round(value) + '%';
+        }
+
+        function updateSpeed(value) {
+            playbackRate = parseFloat(value);
+            if (currentAudio) {
+                currentAudio.playbackRate = playbackRate;
+            }
+            updateSpeedDisplay(value);
+        }
+
+        function updateSpeedDisplay(value) {
+            const speedEl = document.getElementById('speed-display');
+            if (value <= 0.8) {
+                speedEl.textContent = '慢';
+            } else if (value >= 1.3) {
+                speedEl.textContent = '快';
+            } else {
+                speedEl.textContent = '正常';
+            }
+        }
+
+        function generateSongLibrary() {
+            const library = document.getElementById('song-library');
+            tracks.forEach((track, index) => {
+                const songElement = document.createElement('div');
+                songElement.className = `track-button ${track.color} rounded-xl p-3 cursor-pointer hover:shadow-lg transition-all text-white`;
+                songElement.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="text-lg font-bold mb-1">${track.name}</div>
+                            <div class="text-xs opacity-90">${track.genre}</div>
+                        </div>
+                        <div class="text-2xl ml-3">🎵</div>
+                    </div>
+                `;
+                songElement.addEventListener('click', () => loadTrack(index));
+                library.appendChild(songElement);
+            });
+        }
+
+        function highlightCurrentTrack() {
+            const trackElements = document.querySelectorAll('.track-button');
+            trackElements.forEach((element, index) => {
+                if (index === currentTrackIndex) {
+                    element.classList.add('ring-4', 'ring-white', 'ring-opacity-50');
+                } else {
+                    element.classList.remove('ring-4', 'ring-white', 'ring-opacity-50');
+                }
+            });
+        }
+
+        // Sound Effect Functions - FIXED: Only highlight specific button
+        function playSoundEffect(soundIndex) {
+            const sound = soundEffects[soundIndex];
+            const buttonElement = document.querySelector(`button[data-sound="${soundIndex}"]`);
+            
+            console.log(`🔊 CLICKED: ${sound.name} (${sound.emoji})`);
+            
+            // Clear any existing highlights from other buttons first
+            document.querySelectorAll('[data-sound]').forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-primary', 'ring-opacity-70', 'scale-110', 'bg-primary');
+            });
+            
+            // ONLY highlight the clicked button
+            if (buttonElement) {
+                buttonElement.style.backgroundColor = '#00FFFF';
+                buttonElement.style.transform = 'scale(1.1)';
+                buttonElement.style.boxShadow = '0 0 20px #00FFFF';
+                
+                // Remove highlight after short time
+                setTimeout(() => {
+                    buttonElement.style.backgroundColor = '';
+                    buttonElement.style.transform = '';
+                    buttonElement.style.boxShadow = '';
+                }, 400);
+            }
+            
+            // Play sound immediately - volume control is now handled inside playRealAudioEffect
+            try {
+                playRealAudioEffect(sound);
+            } catch (error) {
+                console.error(`❌ Error: ${error}`);
+            }
+        }
+
+        function generateSoundEffects() {
+            const grid = document.getElementById('sound-effects-grid');
+            grid.innerHTML = ''; // Clear any existing content
+            
+            soundEffects.forEach((sound, index) => {
+                // Create individual sound button container
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'relative';
+                
+                // Create the actual button
+                const soundButton = document.createElement('button');
+                soundButton.className = `
+                    w-full h-16 
+                    bg-gradient-to-br from-gray-700 to-gray-900 
+                    border-2 border-gray-600 
+                    rounded-lg 
+                    text-white 
+                    text-2xl 
+                    cursor-pointer 
+                    transition-all 
+                    duration-200 
+                    hover:border-primary 
+                    hover:scale-105 
+                    hover:shadow-lg 
+                    active:scale-95
+                    flex items-center justify-center
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-primary
+                    focus:ring-opacity-50
+                `.replace(/\s+/g, ' ').trim();
+                
+                soundButton.setAttribute('data-sound', index);
+                soundButton.innerHTML = sound.emoji;
+                soundButton.title = sound.name; // Tooltip
+                
+                // Add click event with proper event stopping
+                soundButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent event bubbling
+                    event.preventDefault();
+                    playSoundEffect(index);
+                });
+                
+                // Prevent any parent events
+                soundButton.addEventListener('mousedown', (event) => {
+                    event.stopPropagation();
+                });
+                
+                buttonContainer.appendChild(soundButton);
+                grid.appendChild(buttonContainer);
+            });
+        }
+
+        // Progress Bar Seeking Functionality
+        function setupProgressBarSeeking() {
+            const progressContainer = document.getElementById('progress-container');
+            let isDragging = false;
+
+            function seek(event) {
+                if (!currentAudio || !currentAudio.duration) return;
+
+                const rect = progressContainer.getBoundingClientRect();
+                const clickX = event.clientX - rect.left;
+                const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+                const newTime = percentage * currentAudio.duration;
+                
+                currentAudio.currentTime = newTime;
+                
+                // Update progress bar immediately for better UX
+                document.getElementById('progress-bar').style.width = `${percentage * 100}%`;
+                document.getElementById('current-time').textContent = formatTime(newTime);
+                
+                console.log(`🎯 Seeking to ${formatTime(newTime)} (${Math.round(percentage * 100)}%)`);
+            }
+
+            function handleStart(event) {
+                if (!currentAudio || !currentAudio.duration) return;
+                
+                event.preventDefault();
+                isDragging = true;
+                progressContainer.style.cursor = 'grabbing';
+                
+                // Visual feedback
+                progressContainer.style.transform = 'scaleY(1.2)';
+                
+                seek(event);
+            }
+
+            function handleMove(event) {
+                if (!isDragging) return;
+                event.preventDefault();
+                seek(event);
+            }
+
+            function handleEnd() {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                progressContainer.style.cursor = 'pointer';
+                progressContainer.style.transform = 'scaleY(1)';
+            }
+
+            // Mouse events
+            progressContainer.addEventListener('mousedown', handleStart);
+            document.addEventListener('mousemove', handleMove);
+            document.addEventListener('mouseup', handleEnd);
+
+            // Touch events for mobile
+            progressContainer.addEventListener('touchstart', (event) => {
+                if (event.touches[0]) {
+                    const touch = event.touches[0];
+                    const mouseEvent = new MouseEvent('mousedown', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    handleStart(mouseEvent);
+                }
+            });
+
+            document.addEventListener('touchmove', (event) => {
+                if (isDragging && event.touches[0]) {
+                    event.preventDefault(); // Prevent scrolling while seeking
+                    const touch = event.touches[0];
+                    const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    handleMove(mouseEvent);
+                }
+            });
+
+            document.addEventListener('touchend', handleEnd);
+
+            // Click to seek (without dragging)
+            progressContainer.addEventListener('click', (event) => {
+                if (!isDragging) { // Only if we weren't just dragging
+                    seek(event);
+                }
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            generateSongLibrary();
+            generateSoundEffects(); // Initialize sound effects panel
+            
+            // Set up interactive knobs
+            setupKnob('volume-knob', true);
+            setupKnob('speed-knob', false);
+            
+            // Set up progress bar seeking
+            setupProgressBarSeeking();
+            
+            // Set up event listeners
+            document.getElementById('play-btn').addEventListener('click', togglePlayPause);
+            document.getElementById('prev-btn').addEventListener('click', prevTrack);
+            document.getElementById('next-btn').addEventListener('click', nextTrack);
+
+            // Initialize displays
+            updatePlayButton();
+            document.getElementById('volume-display').textContent = '70%';
+            updateSpeedDisplay(1.0);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
