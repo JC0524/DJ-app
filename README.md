@@ -1,0 +1,1 @@
+A DJ mixer web app with a realistic hardware-inspired interface. Load tracks from a built-in library spanning jazz, blues, classical, country, lo-fi, R&B, reggae, and folk — then mix live with a full suite of DJ controls.
