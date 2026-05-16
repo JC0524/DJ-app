@@ -443,11 +443,11 @@
             { name: "Jazz 1", genre: "JAZZ", url: "https://pfst.cf2.poecdn.net/base/audio/36024173403efaeb224a453925c0ec255298a9bfa66c2662dbd9e2f49d05696f", bpm: 88 },
             { name: "Blues", genre: "BLUES", url: "https://pfst.cf2.poecdn.net/base/audio/a7922f93a1edd5ac6405987522e4819aa4114312846d26a4fdfc13a8fbb08eeb", bpm: 72 },
             { name: "Waltz", genre: "CLASSICAL", url: "https://pfst.cf2.poecdn.net/base/audio/027195c41332e25f0f36b88033a7cea9722e36d08c8d1985dcd5c8a4bb3be0e6", bpm: 96 },
-            { name: "Country 1", genre: "COUNTRY", url: "https://pfst.cf2.poecdn.net/base/audio/6b665200bb1d947fd01032c0685565d2a7b8df4a51f010e20e", bpm: 80 },
+
             { name: "Lo-fi", genre: "LO-FI", url: "https://pfst.cf2.poecdn.net/base/audio/b582beedd0553ad52fd89f05905c02489f06ae29d21d0427f25eef85ba9ce75f", bpm: 75 },
             { name: "Jazz 2", genre: "JAZZ", url: "https://pfst.cf2.poecdn.net/base/audio/5d4de3ecaafdee488125b2df2af083586a47aed9206bac7482117090a5955a18", bpm: 140 },
             { name: "R&B", genre: "R&B", url: "https://pfst.cf2.poecdn.net/base/audio/63ea389b4c7183cfa2c4efb0b050468e9cdd96eb9a4dfaa99574e5565bca19ce", bpm: 95 },
-            { name: "Country 2", genre: "COUNTRY", url: "https://pfst.cf2.poecdn.net/base/audio/26d684915a5c160fb7f2b327a497d67f368a9d648e8a0a8f30cfc42d98db73b8", bpm: 130 },
+            { name: "Country", genre: "COUNTRY", url: "https://pfst.cf2.poecdn.net/base/audio/26d684915a5c160fb7f2b327a497d67f368a9d648e8a0a8f30cfc42d98db73b8", bpm: 130 },
             { name: "Classical", genre: "CLASSICAL", url: "https://pfst.cf2.poecdn.net/base/audio/c104d4fca9149d80acaa024963b5c1391d555ba00fa08f584280ee12216646e5", bpm: 108 },
             { name: "Reggae", genre: "REGGAE", url: "https://pfst.cf2.poecdn.net/base/audio/75c7fab4c07af8951d4206d907ae2cb5ab62c292aa0bdfabc345800d1afafd5f", bpm: 82 },
             { name: "Folk Violin", genre: "FOLK", url: "https://pfst.cf2.poecdn.net/base/audio/775cb7a22881cfd19b1bee33e11fb0040bfe79e02e63a31ca74c5c58955bd527", bpm: 110 }
@@ -509,6 +509,12 @@
                 document.getElementById('t-fill').style.width = p + '%';
                 document.getElementById('ph').style.left = p + '%';
                 document.getElementById('t-cur').textContent = fmt(audio.currentTime);
+            };
+            audio.onerror = function() {
+                playing = false;
+                document.getElementById('trk-name').textContent = 'LOAD ERROR';
+                document.getElementById('trk-genre').textContent = 'TRACK UNAVAILABLE';
+                updTransport();
             };
             try { await audio.play(); playing = true; } catch (e) { playing = false; }
             updTransport(); hlTrack(); startVis();
@@ -810,4 +816,5 @@
     </script>
 </body>
 </html>
+
 
