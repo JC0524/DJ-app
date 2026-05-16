@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DJ Mixer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700&family=Rajdhani:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-base: #08090d;
@@ -86,6 +86,17 @@
         .vu-s.g { background: var(--led-green); box-shadow: 0 0 3px rgba(0,230,118,0.4); }
         .vu-s.a { background: var(--led-amber); box-shadow: 0 0 3px rgba(255,171,0,0.4); }
         .vu-s.r { background: var(--led-red); box-shadow: 0 0 3px rgba(255,61,90,0.5); }
+        .hdr-right { display: flex; align-items: center; gap: 8px; }
+        .lang-btn {
+            font-family: var(--font-label), 'Noto Sans TC', sans-serif;
+            font-weight: 700; font-size: 10px; letter-spacing: 1px;
+            color: var(--led-amber); background: linear-gradient(180deg, #3a3210, #2a2408 40%, #1e1a06);
+            border: 1px solid #4a3a14; border-radius: 3px; padding: 3px 8px;
+            cursor: pointer; white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            transition: all 0.1s;
+        }
+        .lang-btn:active { transform: translateY(1px); box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
         .st-wrap { display: flex; align-items: center; gap: 4px; }
         .st-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--bg-recess); border: 1px solid var(--border-dim); }
         .st-dot.on { background: var(--led-green); border-color: var(--led-green); box-shadow: 0 0 6px rgba(0,230,118,0.5); }
@@ -290,6 +301,24 @@
             .lc-name { font-size: 12px; }
         }
 
+        .dev-tag {
+            position: fixed;
+            bottom: 8px;
+            right: 10px;
+            font-family: var(--font-lcd);
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            color: var(--led-cyan);
+            text-shadow: 0 0 6px rgba(0,212,255,0.3);
+            background: rgba(12,14,20,0.92);
+            border: 1px solid rgba(0,212,255,0.25);
+            border-radius: 4px;
+            padding: 4px 10px;
+            z-index: 100;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
         @media (min-width: 1024px) {
             .ctrl-row { gap: 12px; }
             .jog { width: 170px; height: 170px; }
@@ -311,6 +340,7 @@
     </style>
 </head>
 <body>
+    <div class="dev-tag">Developed by JC33</div>
     <div class="dj-panel">
 
         <!-- HEADER -->
@@ -322,9 +352,12 @@
                 <div class="vu-ch" id="vu-r"></div>
                 <span class="vu-lbl">R</span>
             </div>
-            <div class="st-wrap">
-                <div class="st-dot" id="st-dot"></div>
-                <span class="st-txt" id="st-txt">STANDBY</span>
+            <div class="hdr-right">
+                <button class="lang-btn" id="lang-btn">繁中</button>
+                <div class="st-wrap">
+                    <div class="st-dot" id="st-dot"></div>
+                    <span class="st-txt" id="st-txt">STANDBY</span>
+                </div>
             </div>
         </div>
 
@@ -437,6 +470,36 @@
         var eqH = 0, eqM = 0, eqL = 0;
         var activeFx = 0, origGain = 0;
         var wfData = null, rafId = null, jogA = 0;
+        var curLang = 'en';
+
+        // ===== I18N =====
+        var i18n = {
+            en: {
+                logo: 'DJ MIXER', standby: 'STANDBY', playing: 'PLAYING', paused: 'PAUSED',
+                noTrack: '-- NO TRACK --', selectLib: 'SELECT FROM LIBRARY', bpm: 'BPM',
+                cue: 'CUE', play: 'PLAY', pause: 'PAUSE', prev: 'PREV', next: 'NEXT',
+                jog: 'JOG', hi: 'HI', mid: 'MID', lo: 'LO', vol: 'VOL', pitch: 'PITCH',
+                library: 'LIBRARY', loadError: 'LOAD ERROR', trackUnavail: 'TRACK UNAVAILABLE',
+                devTag: 'Developed by JC33', toggleLbl: '繁中',
+                airhorn: 'AIRHORN', victory: 'VICTORY', drum: 'DRUM', suspense: 'SUSPENSE',
+                drop: 'DROP', fail: 'FAIL', rise: 'RISE', bonus: 'BONUS',
+                JAZZ: 'JAZZ', BLUES: 'BLUES', CLASSICAL: 'CLASSICAL', 'LO-FI': 'LO-FI',
+                'R&B': 'R&B', COUNTRY: 'COUNTRY', REGGAE: 'REGGAE', FOLK: 'FOLK'
+            },
+            zh: {
+                logo: 'DJ 混音器', standby: '待機', playing: '播放中', paused: '已暫停',
+                noTrack: '-- 未選取曲目 --', selectLib: '從曲庫選擇', bpm: 'BPM',
+                cue: '提示', play: '播放', pause: '暫停', prev: '上一首', next: '下一首',
+                jog: '轉盤', hi: '高音', mid: '中音', lo: '低音', vol: '音量', pitch: '音高',
+                library: '曲庫', loadError: '載入錯誤', trackUnavail: '曲目無法使用',
+                devTag: '由 JC33 開發', toggleLbl: 'EN',
+                airhorn: '氣笛', victory: '勝利', drum: '鼓聲', suspense: '懸疑',
+                drop: '重低音', fail: '失敗', rise: '漸強', bonus: '獎勵',
+                JAZZ: '爵士', BLUES: '藍調', CLASSICAL: '古典', 'LO-FI': '低保真',
+                'R&B': '節奏藍調', COUNTRY: '鄉村', REGGAE: '雷鬼', FOLK: '民謠'
+            }
+        };
+        function t(key) { return (i18n[curLang] && i18n[curLang][key]) || key; }
 
         // ===== TRACKS =====
         var tracks = [
@@ -492,14 +555,14 @@
             initEngine(); resumeCtx();
             if (playing) { audio.pause(); playing = false; }
             curIdx = i;
-            var t = tracks[i];
-            document.getElementById('trk-name').textContent = t.name;
-            document.getElementById('trk-genre').textContent = t.genre;
-            document.getElementById('bpm-val').textContent = t.bpm;
-            genWF(t.name);
-            audio.src = t.url;
+            var tr = tracks[i];
+            document.getElementById('trk-name').textContent = tr.name;
+            document.getElementById('trk-genre').textContent = t(tr.genre);
+            document.getElementById('bpm-val').textContent = tr.bpm;
+            genWF(tr.name);
+            audio.src = tr.url;
             var g = calcGain(vol);
-            if (t.name === 'Classical') g = g * 8;
+            if (tr.name === 'Classical') g = g * 8;
             if (gainNode) gainNode.gain.value = g; else audio.volume = Math.min(1, g);
             audio.playbackRate = rate;
             audio.onloadedmetadata = function() { document.getElementById('t-tot').textContent = fmt(audio.duration); };
@@ -512,8 +575,8 @@
             };
             audio.onerror = function() {
                 playing = false;
-                document.getElementById('trk-name').textContent = 'LOAD ERROR';
-                document.getElementById('trk-genre').textContent = 'TRACK UNAVAILABLE';
+                document.getElementById('trk-name').textContent = t('loadError');
+                document.getElementById('trk-genre').textContent = t('trackUnavail');
                 updTransport();
             };
             try { await audio.play(); playing = true; } catch (e) { playing = false; }
@@ -534,12 +597,12 @@
             var d = document.getElementById('st-dot');
             var s = document.getElementById('st-txt');
             if (playing) {
-                b.innerHTML = 'PAUSE<span class="led"></span>'; b.classList.add('on');
-                d.classList.add('on'); s.textContent = 'PLAYING'; s.classList.add('on');
+                b.innerHTML = t('pause') + '<span class="led"></span>'; b.classList.add('on');
+                d.classList.add('on'); s.textContent = t('playing'); s.classList.add('on');
             } else {
-                b.innerHTML = 'PLAY<span class="led"></span>'; b.classList.remove('on');
+                b.innerHTML = t('play') + '<span class="led"></span>'; b.classList.remove('on');
                 d.classList.remove('on'); s.classList.remove('on');
-                s.textContent = curIdx >= 0 ? 'PAUSED' : 'STANDBY';
+                s.textContent = curIdx >= 0 ? t('paused') : t('standby');
             }
         }
 
@@ -777,21 +840,81 @@
             var g = document.getElementById('pads');
             sfx.forEach(function(s, i) {
                 var b = document.createElement('button');
-                b.className = 'fx-pad'; b.setAttribute('data-i', i); b.setAttribute('data-c', s.c);
-                b.innerHTML = '<span class="p-led"></span>' + s.name;
+                var nameKey = s.name.toLowerCase();
+                b.className = 'fx-pad'; b.setAttribute('data-i', i); b.setAttribute('data-c', s.c); b.setAttribute('data-key', nameKey);
+                b.innerHTML = '<span class="p-led"></span><span class="pad-txt">' + t(nameKey) + '</span>';
                 b.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); hitPad(i); });
                 g.appendChild(b);
             });
         }
         function buildLib() {
             var g = document.getElementById('lib');
-            tracks.forEach(function(t, i) {
+            tracks.forEach(function(tr, i) {
                 var c = document.createElement('div');
                 c.className = 'lib-card';
-                c.innerHTML = '<div class="lc-name">' + t.name + '</div><div class="lc-genre">' + t.genre + '</div><div class="lc-led"></div>';
+                c.setAttribute('data-genre', tr.genre);
+                c.innerHTML = '<div class="lc-name">' + tr.name + '</div><div class="lc-genre">' + t(tr.genre) + '</div><div class="lc-led"></div>';
                 c.addEventListener('click', function() { loadTrack(i); });
                 g.appendChild(c);
             });
+        }
+
+        // ===== LANGUAGE =====
+        function applyLang() {
+            // Logo
+            document.querySelector('.logo').textContent = t('logo');
+            // Dev tag
+            document.querySelector('.dev-tag').textContent = t('devTag');
+            // Toggle button label (shows opposite language)
+            document.getElementById('lang-btn').textContent = t('toggleLbl');
+            // Display defaults (only if no track loaded)
+            if (curIdx < 0) {
+                document.getElementById('trk-name').textContent = t('noTrack');
+                document.getElementById('trk-genre').textContent = t('selectLib');
+            } else {
+                // Update genre for current track
+                document.getElementById('trk-genre').textContent = t(tracks[curIdx].genre);
+            }
+            document.querySelector('.bpm-lbl').textContent = t('bpm');
+            // Transport buttons
+            document.getElementById('b-cue').textContent = t('cue');
+            document.getElementById('b-prev').textContent = t('prev');
+            document.getElementById('b-next').textContent = t('next');
+            updTransport(); // handles play/pause + status
+            // Jog label
+            document.querySelector('.jog-in span').textContent = t('jog');
+            // EQ labels
+            var eqLabels = document.querySelectorAll('.eq-lbl');
+            if (eqLabels[0]) eqLabels[0].textContent = t('hi');
+            if (eqLabels[1]) eqLabels[1].textContent = t('mid');
+            if (eqLabels[2]) eqLabels[2].textContent = t('lo');
+            // Fader labels
+            var fLabels = document.querySelectorAll('.f-lbl');
+            if (fLabels[0]) fLabels[0].textContent = t('vol');
+            if (fLabels[1]) fLabels[1].textContent = t('pitch');
+            // Library label
+            document.querySelector('.lib-lbl').textContent = t('library');
+            // Library genre text
+            document.querySelectorAll('.lib-card').forEach(function(card) {
+                var genre = card.getAttribute('data-genre');
+                if (genre) {
+                    var genreEl = card.querySelector('.lc-genre');
+                    if (genreEl) genreEl.textContent = t(genre);
+                }
+            });
+            // FX pad names
+            document.querySelectorAll('.fx-pad').forEach(function(pad) {
+                var key = pad.getAttribute('data-key');
+                if (key) {
+                    var txt = pad.querySelector('.pad-txt');
+                    if (txt) txt.textContent = t(key);
+                }
+            });
+        }
+
+        function toggleLang() {
+            curLang = curLang === 'en' ? 'zh' : 'en';
+            applyLang();
         }
 
         // ===== INIT =====
@@ -800,6 +923,7 @@
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) { if (e.matches) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); });
 
             buildVU(); buildPads(); buildLib();
+            document.getElementById('lang-btn').addEventListener('click', toggleLang);
             document.getElementById('b-play').addEventListener('click', togglePlay);
             document.getElementById('b-cue').addEventListener('click', cue);
             document.getElementById('b-prev').addEventListener('click', prev);
@@ -816,5 +940,6 @@
     </script>
 </body>
 </html>
+
 
 
