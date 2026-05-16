@@ -100,8 +100,11 @@
         .st-wrap { display: flex; align-items: center; gap: 4px; }
         .st-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--bg-recess); border: 1px solid var(--border-dim); }
         .st-dot.on { background: var(--led-green); border-color: var(--led-green); box-shadow: 0 0 6px rgba(0,230,118,0.5); }
+        .st-dot.loading { background: var(--led-amber); border-color: var(--led-amber); box-shadow: 0 0 6px rgba(255,171,0,0.5); animation: blink 0.6s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
         .st-txt { font-family: var(--font-lcd); font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
         .st-txt.on { color: var(--led-green); }
+        .st-txt.loading { color: var(--led-amber); }
 
         /* ===== DISPLAY ===== */
         .disp { background: linear-gradient(180deg, #0e1016, #0a0b0f); padding: 5px 8px; }
@@ -201,14 +204,17 @@
         }
         .eq-val { font-family: var(--font-lcd); font-size: 10px; color: var(--text-secondary); width: 38px; text-align: right; flex-shrink: 0; }
 
-        .ctrl-faders { display: flex; gap: 20px; align-items: center; justify-content: center; flex: 1; }
+        .ctrl-faders { display: flex; gap: 12px; align-items: center; justify-content: center; flex: 1; }
         .f-group { display: flex; flex-direction: column; align-items: center; gap: 3px; }
         .f-lbl { font-family: var(--font-label); font-weight: 700; font-size: 10px; letter-spacing: 1.5px; color: var(--text-dim); }
         .f-track {
             width: 8px; height: 110px; background: var(--bg-recess); border: 1px solid #111; border-radius: 4px;
             position: relative; box-shadow: inset 0 2px 6px rgba(0,0,0,0.7); cursor: pointer; touch-action: none;
         }
-        .f-fill { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, var(--led-green) 0%, var(--led-amber) 60%, var(--led-red) 85%, #ff0033 100%); border-radius: 0 0 3px 3px; transition: height 0.04s; }
+        .f-fill { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 0 0 3px 3px; transition: height 0.04s; }
+        .f-fill.vol-fill { background: linear-gradient(0deg, var(--led-green) 0%, var(--led-amber) 60%, var(--led-red) 85%, #ff0033 100%); }
+        .f-fill.spd-fill { background: linear-gradient(0deg, var(--led-cyan) 0%, var(--led-magenta) 100%); }
+        .f-fill.pit-fill { background: linear-gradient(0deg, var(--led-amber) 0%, var(--led-green) 50%, var(--led-amber) 100%); }
         .f-thumb {
             position: absolute; left: 50%; transform: translate(-50%, 50%); width: 28px; height: 14px;
             background: linear-gradient(180deg, #606880, #3a3d48 30%, #2a2d35 70%, #22252e);
@@ -221,6 +227,13 @@
         .f-val { font-family: var(--font-lcd); font-size: 11px; color: var(--led-green); text-shadow: 0 0 3px rgba(0,230,118,0.25); transition: color 0.15s; }
         .f-val.hot { color: var(--led-amber); text-shadow: 0 0 6px rgba(255,171,0,0.4); }
         .f-val.clip { color: var(--led-red); text-shadow: 0 0 8px rgba(255,61,90,0.5); }
+        .f-val.spd-val { color: var(--led-cyan); text-shadow: 0 0 3px rgba(0,212,255,0.25); }
+        .f-val.pit-val { color: var(--led-amber); text-shadow: 0 0 3px rgba(255,171,0,0.25); }
+        .f-center-mark {
+            position: absolute; left: 0; right: 0; bottom: 50%;
+            height: 1px; background: rgba(255,255,255,0.2);
+            pointer-events: none;
+        }
 
         /* ===== FX PADS ===== */
         .pads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 3px var(--pad); }
@@ -293,7 +306,7 @@
             .f-thumb { width: 32px; height: 16px; }
             .f-lbl { font-size: 11px; }
             .f-val { font-size: 12px; }
-            .ctrl-faders { gap: 28px; }
+            .ctrl-faders { gap: 18px; }
             .pads { grid-template-columns: repeat(4, 1fr); gap: 5px; }
             .fx-pad { font-size: 10px; min-height: 42px; padding: 10px 4px; }
             .t-btn { padding: 10px 4px; font-size: 12px; }
@@ -335,7 +348,7 @@
             .f-thumb { width: 36px; height: 18px; }
             .f-lbl { font-size: 12px; }
             .f-val { font-size: 13px; }
-            .ctrl-faders { gap: 36px; }
+            .ctrl-faders { gap: 26px; }
         }
     </style>
 </head>
@@ -435,18 +448,27 @@
                 <div class="f-group">
                     <span class="f-lbl">VOL</span>
                     <div class="f-track" id="ft-vol">
-                        <div class="f-fill" id="ff-vol" style="height:50%"></div>
+                        <div class="f-fill vol-fill" id="ff-vol" style="height:50%"></div>
                         <div class="f-thumb" id="fh-vol" style="bottom:50%"></div>
                     </div>
                     <span class="f-val" id="fv-vol">75%</span>
                 </div>
                 <div class="f-group">
+                    <span class="f-lbl">SPD</span>
+                    <div class="f-track" id="ft-spd">
+                        <div class="f-fill spd-fill" id="ff-spd" style="height:33.3%"></div>
+                        <div class="f-thumb" id="fh-spd" style="bottom:33.3%"></div>
+                    </div>
+                    <span class="f-val spd-val" id="fv-spd">1.00x</span>
+                </div>
+                <div class="f-group">
                     <span class="f-lbl">PITCH</span>
                     <div class="f-track" id="ft-pit">
-                        <div class="f-fill" id="ff-pit" style="height:50%"></div>
+                        <div class="f-center-mark"></div>
+                        <div class="f-fill pit-fill" id="ff-pit" style="height:50%"></div>
                         <div class="f-thumb" id="fh-pit" style="bottom:50%"></div>
                     </div>
-                    <span class="f-val" id="fv-pit">1.00x</span>
+                    <span class="f-val pit-val" id="fv-pit">0 st</span>
                 </div>
             </div>
         </div>
@@ -462,23 +484,104 @@
     </div>
 
     <script>
-        // ===== STATE =====
+        /* ===== STATE ===== */
         var audioCtx = null, analyser = null, gainNode = null;
         var hiF = null, midF = null, loF = null, srcNode = null, audio = null;
-        var playing = false, curIdx = -1, vol = 0.5, rate = 1.0;
-        var MAX_GAIN = 3.0; // 300% max volume
+        var pitchProc = null;   /* ScriptProcessorNode for pitch shifting */
+        var pitchRatio = 1.0;   /* 2^(semitones/12) */
+        var playing = false, curIdx = -1, vol = 0.5, speed = 1.0, pitch = 0;
+        var MAX_GAIN = 3.0;
         var eqH = 0, eqM = 0, eqL = 0;
         var activeFx = 0, origGain = 0;
         var wfData = null, rafId = null, jogA = 0;
         var curLang = 'en';
 
-        // ===== I18N =====
+        /* ===== GRANULAR PITCH SHIFTER ===== */
+        /*
+         * Uses two overlapping Hann-windowed grains that read from a
+         * circular buffer at a modified rate (pitchRatio).  The write
+         * pointer always advances at 1 sample/sample, so the *speed*
+         * of the audio is unchanged.  Only the pitch shifts.
+         *
+         * readPos = writePos - (GRAIN - grainPhase) * pitchRatio
+         * This guarantees the read pointer never overshoots the write
+         * pointer, even for pitch-up (ratio > 1).
+         */
+        var CIRC  = 65536;     /* circular buffer length (power of 2) */
+        var CMASK = CIRC - 1;  /* bitmask for fast modulo */
+        var GRAIN = 2048;      /* grain size in samples (~46 ms @ 44.1 kHz) */
+
+        function createPitchShifter(ctx) {
+            var proc = ctx.createScriptProcessor(4096, 2, 2);
+
+            var cL = new Float32Array(CIRC);
+            var cR = new Float32Array(CIRC);
+            var wp  = 0;
+            var ph  = [0, Math.floor(GRAIN / 2)]; /* two grains, 50 % overlap */
+
+            proc.onaudioprocess = function (e) {
+                var iL = e.inputBuffer.getChannelData(0);
+                var iR = e.inputBuffer.numberOfChannels > 1
+                       ? e.inputBuffer.getChannelData(1) : iL;
+                var oL = e.outputBuffer.getChannelData(0);
+                var oR = e.outputBuffer.numberOfChannels > 1
+                       ? e.outputBuffer.getChannelData(1) : oL;
+                var len = iL.length;
+                var r   = pitchRatio;
+
+                /* Fast-path: no pitch shift → passthrough */
+                if (r > 0.999 && r < 1.001) {
+                    for (var k = 0; k < len; k++) {
+                        cL[(wp + k) & CMASK] = iL[k];
+                        cR[(wp + k) & CMASK] = iR[k];
+                        oL[k] = iL[k];
+                        oR[k] = iR[k];
+                    }
+                    wp = (wp + len) & CMASK;
+                    return;
+                }
+
+                for (var i = 0; i < len; i++) {
+                    cL[wp & CMASK] = iL[i];
+                    cR[wp & CMASK] = iR[i];
+
+                    var sL = 0, sR = 0;
+
+                    for (var g = 0; g < 2; g++) {
+                        /* Hann window */
+                        var t = ph[g] / GRAIN;
+                        var w = 0.5 * (1 - Math.cos(6.283185307 * t));
+
+                        /* Read position: never ahead of write pointer */
+                        var rp = wp - (GRAIN - ph[g]) * r;
+                        var ri = Math.floor(rp);
+                        var rf = rp - ri;
+                        var a  = ((ri    ) & CMASK + CIRC) & CMASK;
+                        var b  = ((ri + 1) & CMASK + CIRC) & CMASK;
+
+                        sL += (cL[a] + (cL[b] - cL[a]) * rf) * w;
+                        sR += (cR[a] + (cR[b] - cR[a]) * rf) * w;
+
+                        ph[g]++;
+                        if (ph[g] >= GRAIN) ph[g] = 0;
+                    }
+
+                    oL[i] = sL;
+                    oR[i] = sR;
+                    wp = (wp + 1) & CMASK;
+                }
+            };
+
+            return proc;
+        }
+
+        /* ===== I18N ===== */
         var i18n = {
             en: {
                 logo: 'DJ MIXER', standby: 'STANDBY', playing: 'PLAYING', paused: 'PAUSED',
                 noTrack: '-- NO TRACK --', selectLib: 'SELECT FROM LIBRARY', bpm: 'BPM',
                 cue: 'CUE', play: 'PLAY', pause: 'PAUSE', prev: 'PREV', next: 'NEXT',
-                jog: 'JOG', hi: 'HI', mid: 'MID', lo: 'LO', vol: 'VOL', pitch: 'PITCH',
+                jog: 'JOG', hi: 'HI', mid: 'MID', lo: 'LO', vol: 'VOL', spd: 'SPD', pitch: 'PITCH',
                 library: 'LIBRARY', loadError: 'LOAD ERROR', trackUnavail: 'TRACK UNAVAILABLE',
                 devTag: 'Developed by JC33', toggleLbl: '繁中',
                 airhorn: 'AIRHORN', victory: 'VICTORY', drum: 'DRUM', suspense: 'SUSPENSE',
@@ -490,7 +593,7 @@
                 logo: 'DJ 混音器', standby: '待機', playing: '播放中', paused: '已暫停',
                 noTrack: '-- 未選取曲目 --', selectLib: '從曲庫選擇', bpm: 'BPM',
                 cue: '提示', play: '播放', pause: '暫停', prev: '上一首', next: '下一首',
-                jog: '轉盤', hi: '高音', mid: '中音', lo: '低音', vol: '音量', pitch: '音高',
+                jog: '轉盤', hi: '高音', mid: '中音', lo: '低音', vol: '音量', spd: '速度', pitch: '音高',
                 library: '曲庫', loadError: '載入錯誤', trackUnavail: '曲目無法使用',
                 devTag: '由 JC33 開發', toggleLbl: 'EN',
                 airhorn: '氣笛', victory: '勝利', drum: '鼓聲', suspense: '懸疑',
@@ -501,12 +604,11 @@
         };
         function t(key) { return (i18n[curLang] && i18n[curLang][key]) || key; }
 
-        // ===== TRACKS =====
+        /* ===== TRACKS ===== */
         var tracks = [
             { name: "Jazz 1", genre: "JAZZ", url: "https://pfst.cf2.poecdn.net/base/audio/36024173403efaeb224a453925c0ec255298a9bfa66c2662dbd9e2f49d05696f", bpm: 88 },
             { name: "Blues", genre: "BLUES", url: "https://pfst.cf2.poecdn.net/base/audio/a7922f93a1edd5ac6405987522e4819aa4114312846d26a4fdfc13a8fbb08eeb", bpm: 72 },
             { name: "Waltz", genre: "CLASSICAL", url: "https://pfst.cf2.poecdn.net/base/audio/027195c41332e25f0f36b88033a7cea9722e36d08c8d1985dcd5c8a4bb3be0e6", bpm: 96 },
-
             { name: "Lo-fi", genre: "LO-FI", url: "https://pfst.cf2.poecdn.net/base/audio/b582beedd0553ad52fd89f05905c02489f06ae29d21d0427f25eef85ba9ce75f", bpm: 75 },
             { name: "Jazz 2", genre: "JAZZ", url: "https://pfst.cf2.poecdn.net/base/audio/5d4de3ecaafdee488125b2df2af083586a47aed9206bac7482117090a5955a18", bpm: 140 },
             { name: "R&B", genre: "R&B", url: "https://pfst.cf2.poecdn.net/base/audio/63ea389b4c7183cfa2c4efb0b050468e9cdd96eb9a4dfaa99574e5565bca19ce", bpm: 95 },
@@ -527,7 +629,24 @@
             { name: "BONUS", url: "https://pfst.cf2.poecdn.net/base/audio/dd9faefd34742dbfaebce67c4717ac3dc498840ae42acb26ab3c05f19712e14b", c: "pink" }
         ];
 
-        // ===== AUDIO ENGINE =====
+        /* ===== AUDIO ENGINE  ===== */
+        /*
+         *  <audio> element  (handles streaming, seeking, time, loop)
+         *     │
+         *  MediaElementSourceNode
+         *     │
+         *  pitchProc  (ScriptProcessorNode – granular pitch shifter)
+         *     │
+         *  loF → midF → hiF  (3-band EQ)
+         *     │
+         *  analyser
+         *     │
+         *  gainNode → destination
+         *
+         *  SPD  → audio.playbackRate  (preservesPitch = true  ⟹ speed-only)
+         *  PITCH → pitchProc ratio    (granular DSP            ⟹ pitch-only)
+         *  VOL  → gainNode.gain       (volume)
+         */
         function initEngine() {
             if (audioCtx) return;
             try {
@@ -535,22 +654,46 @@
                 analyser = audioCtx.createAnalyser();
                 analyser.fftSize = 256;
                 analyser.smoothingTimeConstant = 0.8;
+
                 gainNode = audioCtx.createGain();
                 gainNode.gain.value = calcGain(vol);
+
                 hiF = audioCtx.createBiquadFilter(); hiF.type = 'highshelf'; hiF.frequency.value = 3200; hiF.gain.value = 0;
                 midF = audioCtx.createBiquadFilter(); midF.type = 'peaking'; midF.frequency.value = 1000; midF.Q.value = 0.7; midF.gain.value = 0;
                 loF = audioCtx.createBiquadFilter(); loF.type = 'lowshelf'; loF.frequency.value = 320; loF.gain.value = 0;
-                audio = new Audio(); audio.crossOrigin = 'anonymous'; audio.loop = true;
+
+                pitchProc = createPitchShifter(audioCtx);
+
+                audio = new Audio();
+                audio.crossOrigin = 'anonymous';
+                audio.loop = true;
+
+                /* Enable browser time-stretch: speed changes, pitch stays */
+                audio.preservesPitch = true;
+                if (audio.preservesPitch === undefined) {
+                    audio.mozPreservesPitch = true;
+                    audio.webkitPreservesPitch = true;
+                }
+
                 srcNode = audioCtx.createMediaElementSource(audio);
-                srcNode.connect(loF); loF.connect(midF); midF.connect(hiF); hiF.connect(analyser); analyser.connect(gainNode); gainNode.connect(audioCtx.destination);
+
+                /* Wire the chain */
+                srcNode.connect(pitchProc);
+                pitchProc.connect(loF);
+                loF.connect(midF);
+                midF.connect(hiF);
+                hiF.connect(analyser);
+                analyser.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
             } catch (e) {
                 console.error('Audio init: ' + e.message);
-                audio = new Audio(); audio.loop = true;
+                audio = new Audio();
+                audio.loop = true;
             }
         }
         function resumeCtx() { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }
 
-        // ===== PLAYBACK =====
+        /* ===== PLAYBACK ===== */
         async function loadTrack(i) {
             initEngine(); resumeCtx();
             if (playing) { audio.pause(); playing = false; }
@@ -564,7 +707,7 @@
             var g = calcGain(vol);
             if (tr.name === 'Classical') g = g * 8;
             if (gainNode) gainNode.gain.value = g; else audio.volume = Math.min(1, g);
-            audio.playbackRate = rate;
+            audio.playbackRate = speed;
             audio.onloadedmetadata = function() { document.getElementById('t-tot').textContent = fmt(audio.duration); };
             audio.ontimeupdate = function() {
                 if (!audio.duration) return;
@@ -606,9 +749,8 @@
             }
         }
 
-        // ===== VOLUME & PITCH =====
+        /* ===== VOLUME ===== */
         function calcGain(fader) {
-            // Exponential curve: fader 0→0, ~0.58→1.0 (100%), 1.0→MAX_GAIN
             return fader * fader * MAX_GAIN;
         }
         function setVol(v) {
@@ -624,19 +766,31 @@
             else if (pct > 100) lbl.classList.add('hot');
             updFader('vol', vol);
         }
-        function setRate(v) {
-            rate = Math.max(0.5, Math.min(2, v));
-            if (audio) audio.playbackRate = rate;
-            document.getElementById('fv-pit').textContent = rate.toFixed(2) + 'x';
-            updFader('pit', (rate - 0.5) / 1.5);
+
+        /* ===== SPEED  (preservesPitch keeps pitch constant) ===== */
+        function setSpeed(v) {
+            speed = Math.max(0.5, Math.min(2, v));
+            if (audio) audio.playbackRate = speed;
+            document.getElementById('fv-spd').textContent = speed.toFixed(2) + 'x';
+            updFader('spd', (speed - 0.5) / 1.5);
         }
+
+        /* ===== PITCH  (granular DSP keeps speed constant) ===== */
+        function setPitch(semitones) {
+            pitch = Math.max(-12, Math.min(12, semitones));
+            pitchRatio = Math.pow(2, pitch / 12);
+            var sign = pitch > 0 ? '+' : '';
+            document.getElementById('fv-pit').textContent = sign + Math.round(pitch) + ' st';
+            updFader('pit', (pitch + 12) / 24);
+        }
+
         function updFader(id, p) {
             var h = Math.max(0, Math.min(100, p * 100));
             document.getElementById('ff-' + id).style.height = h + '%';
             document.getElementById('fh-' + id).style.bottom = h + '%';
         }
 
-        // ===== EQ =====
+        /* ===== EQ ===== */
         function setEQ(band, db) {
             db = Math.max(-12, Math.min(12, db));
             if (band === 'hi') { eqH = db; if (hiF) hiF.gain.value = db; }
@@ -646,7 +800,7 @@
             document.getElementById('v-' + band).textContent = s + Math.round(db) + ' dB';
         }
 
-        // ===== SFX =====
+        /* ===== SFX ===== */
         function hitPad(i) {
             var s = sfx[i];
             var el = document.querySelector('.fx-pad[data-i="' + i + '"]');
@@ -667,7 +821,7 @@
             }
         }
 
-        // ===== WAVEFORM =====
+        /* ===== WAVEFORM ===== */
         function genWF(seed) {
             var h = 0;
             for (var i = 0; i < seed.length; i++) h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
@@ -697,7 +851,7 @@
             ctx.beginPath(); ctx.moveTo(0, my); ctx.lineTo(w, my); ctx.stroke();
         }
 
-        // ===== VU =====
+        /* ===== VU ===== */
         function updVU() {
             var lv = 0;
             if (analyser && playing) {
@@ -719,16 +873,16 @@
             });
         }
 
-        // ===== VIS LOOP =====
+        /* ===== VIS LOOP ===== */
         function startVis() { if (rafId) return; function f() { drawWF(); updVU(); jogSpin(); rafId = requestAnimationFrame(f); } f(); }
         function jogSpin() {
             if (!playing) return;
-            jogA = (jogA + 2 * rate) % 360;
+            jogA = (jogA + 2 * speed) % 360;
             var s = document.getElementById('jog-spin');
             if (s) s.style.transform = 'rotate(' + jogA + 'deg)';
         }
 
-        // ===== JOG WHEEL =====
+        /* ===== JOG WHEEL ===== */
         function setupJog() {
             var el = document.getElementById('jog');
             var drag = false, la = 0;
@@ -750,57 +904,42 @@
             document.addEventListener('touchend', en);
         }
 
-        // ===== FADER SETUP =====
+        /* ===== FADER SETUP ===== */
         function setupFader(tid, cb) {
-            var t = document.getElementById(tid);
+            var tr = document.getElementById(tid);
             var drag = false;
-            function cv(cy) { var r = t.getBoundingClientRect(); return Math.max(0, Math.min(1, 1 - ((cy - r.top) / r.height))); }
+            function cv(cy) { var r = tr.getBoundingClientRect(); return Math.max(0, Math.min(1, 1 - ((cy - r.top) / r.height))); }
             function s(cy, e) { e.preventDefault(); drag = true; cb(cv(cy)); }
             function m(cy, e) { if (!drag) return; e.preventDefault(); cb(cv(cy)); }
             function en() { drag = false; }
-            t.addEventListener('mousedown', function(e) { s(e.clientY, e); });
+            tr.addEventListener('mousedown', function(e) { s(e.clientY, e); });
             document.addEventListener('mousemove', function(e) { if (drag) m(e.clientY, e); });
             document.addEventListener('mouseup', en);
-            t.addEventListener('touchstart', function(e) { if (e.touches[0]) s(e.touches[0].clientY, e); });
+            tr.addEventListener('touchstart', function(e) { if (e.touches[0]) s(e.touches[0].clientY, e); });
             document.addEventListener('touchmove', function(e) { if (drag && e.touches[0]) { e.preventDefault(); m(e.touches[0].clientY, e); } }, { passive: false });
             document.addEventListener('touchend', en);
         }
 
-        // ===== EQ SLIDER SETUP =====
+        /* ===== EQ SLIDER SETUP ===== */
         function updEQSlider(band, db) {
-            var pct = ((db + 12) / 24) * 100; // 0..100, center at 50
+            var pct = ((db + 12) / 24) * 100;
             var thumb = document.getElementById('kh-' + band);
             var fill = document.getElementById('kf-' + band);
             if (thumb) thumb.style.left = pct + '%';
             if (fill) {
-                if (db >= 0) {
-                    fill.style.left = '50%';
-                    fill.style.width = ((db / 12) * 50) + '%';
-                } else {
-                    var w = (Math.abs(db) / 12) * 50;
-                    fill.style.left = (50 - w) + '%';
-                    fill.style.width = w + '%';
-                }
+                if (db >= 0) { fill.style.left = '50%'; fill.style.width = ((db / 12) * 50) + '%'; }
+                else { var w = (Math.abs(db) / 12) * 50; fill.style.left = (50 - w) + '%'; fill.style.width = w + '%'; }
             }
         }
 
         function setupEQSlider(sid, band) {
             var sl = document.getElementById(sid);
             var drag = false;
-            function calcDB(cx) {
-                var r = sl.getBoundingClientRect();
-                var pct = Math.max(0, Math.min(1, (cx - r.left) / r.width));
-                return (pct * 24) - 12; // -12..+12
-            }
-            function apply(cx) {
-                var db = calcDB(cx);
-                setEQ(band, db);
-                updEQSlider(band, db);
-            }
+            function calcDB(cx) { var r = sl.getBoundingClientRect(); var pct = Math.max(0, Math.min(1, (cx - r.left) / r.width)); return (pct * 24) - 12; }
+            function apply(cx) { var db = calcDB(cx); setEQ(band, db); updEQSlider(band, db); }
             function onStart(cx, e) { e.preventDefault(); drag = true; apply(cx); }
             function onMove(cx, e) { if (!drag) return; e.preventDefault(); apply(cx); }
             function onEnd() { drag = false; }
-
             sl.addEventListener('mousedown', function(e) { onStart(e.clientX, e); });
             document.addEventListener('mousemove', function(e) { if (drag) onMove(e.clientX, e); });
             document.addEventListener('mouseup', onEnd);
@@ -809,7 +948,7 @@
             document.addEventListener('touchend', onEnd);
         }
 
-        // ===== SEEK =====
+        /* ===== SEEK ===== */
         function setupSeek() {
             var bar = document.getElementById('t-bar');
             var ww = document.getElementById('wave-wrap');
@@ -825,11 +964,11 @@
             document.addEventListener('touchend', function() { drag = false; });
         }
 
-        // ===== HELPERS =====
+        /* ===== HELPERS ===== */
         function fmt(s) { if (!s || isNaN(s)) return '0:00'; var m = Math.floor(s / 60), sc = Math.floor(s % 60); return m + ':' + (sc < 10 ? '0' : '') + sc; }
         function hlTrack() { document.querySelectorAll('.lib-card').forEach(function(c, i) { if (i === curIdx) c.classList.add('on'); else c.classList.remove('on'); }); }
 
-        // ===== BUILD UI =====
+        /* ===== BUILD UI ===== */
         function buildVU() {
             ['vu-l', 'vu-r'].forEach(function(id) {
                 var ch = document.getElementById(id);
@@ -859,65 +998,44 @@
             });
         }
 
-        // ===== LANGUAGE =====
+        /* ===== LANGUAGE ===== */
         function applyLang() {
-            // Logo
             document.querySelector('.logo').textContent = t('logo');
-            // Dev tag
             document.querySelector('.dev-tag').textContent = t('devTag');
-            // Toggle button label (shows opposite language)
             document.getElementById('lang-btn').textContent = t('toggleLbl');
-            // Display defaults (only if no track loaded)
             if (curIdx < 0) {
                 document.getElementById('trk-name').textContent = t('noTrack');
                 document.getElementById('trk-genre').textContent = t('selectLib');
             } else {
-                // Update genre for current track
                 document.getElementById('trk-genre').textContent = t(tracks[curIdx].genre);
             }
             document.querySelector('.bpm-lbl').textContent = t('bpm');
-            // Transport buttons
             document.getElementById('b-cue').textContent = t('cue');
             document.getElementById('b-prev').textContent = t('prev');
             document.getElementById('b-next').textContent = t('next');
-            updTransport(); // handles play/pause + status
-            // Jog label
+            updTransport();
             document.querySelector('.jog-in span').textContent = t('jog');
-            // EQ labels
             var eqLabels = document.querySelectorAll('.eq-lbl');
             if (eqLabels[0]) eqLabels[0].textContent = t('hi');
             if (eqLabels[1]) eqLabels[1].textContent = t('mid');
             if (eqLabels[2]) eqLabels[2].textContent = t('lo');
-            // Fader labels
             var fLabels = document.querySelectorAll('.f-lbl');
             if (fLabels[0]) fLabels[0].textContent = t('vol');
-            if (fLabels[1]) fLabels[1].textContent = t('pitch');
-            // Library label
+            if (fLabels[1]) fLabels[1].textContent = t('spd');
+            if (fLabels[2]) fLabels[2].textContent = t('pitch');
             document.querySelector('.lib-lbl').textContent = t('library');
-            // Library genre text
             document.querySelectorAll('.lib-card').forEach(function(card) {
                 var genre = card.getAttribute('data-genre');
-                if (genre) {
-                    var genreEl = card.querySelector('.lc-genre');
-                    if (genreEl) genreEl.textContent = t(genre);
-                }
+                if (genre) { var genreEl = card.querySelector('.lc-genre'); if (genreEl) genreEl.textContent = t(genre); }
             });
-            // FX pad names
             document.querySelectorAll('.fx-pad').forEach(function(pad) {
                 var key = pad.getAttribute('data-key');
-                if (key) {
-                    var txt = pad.querySelector('.pad-txt');
-                    if (txt) txt.textContent = t(key);
-                }
+                if (key) { var txt = pad.querySelector('.pad-txt'); if (txt) txt.textContent = t(key); }
             });
         }
+        function toggleLang() { curLang = curLang === 'en' ? 'zh' : 'en'; applyLang(); }
 
-        function toggleLang() {
-            curLang = curLang === 'en' ? 'zh' : 'en';
-            applyLang();
-        }
-
-        // ===== INIT =====
+        /* ===== INIT ===== */
         document.addEventListener('DOMContentLoaded', function() {
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.classList.add('dark');
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) { if (e.matches) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); });
@@ -928,18 +1046,26 @@
             document.getElementById('b-cue').addEventListener('click', cue);
             document.getElementById('b-prev').addEventListener('click', prev);
             document.getElementById('b-next').addEventListener('click', next);
+
+            /* VOL fader: 0..1 → exponential gain curve */
             setupFader('ft-vol', setVol);
-            setupFader('ft-pit', function(v) { setRate(0.5 + v * 1.5); });
+            /* SPD fader: 0..1 → 0.5x..2.0x playback rate (pitch preserved by browser) */
+            setupFader('ft-spd', function(v) { setSpeed(0.5 + v * 1.5); });
+            /* PITCH fader: 0..1 → -12..+12 semitones (speed preserved by granular DSP) */
+            setupFader('ft-pit', function(v) { setPitch((v * 24) - 12); });
+
             setupEQSlider('k-hi', 'hi'); setupEQSlider('k-mid', 'mid'); setupEQSlider('k-lo', 'lo');
             updEQSlider('hi', 0); updEQSlider('mid', 0); updEQSlider('lo', 0);
             setupJog(); setupSeek();
-            updFader('vol', 0.5); updFader('pit', (1.0 - 0.5) / 1.5);
+
+            updFader('vol', 0.5);
+            updFader('spd', (1.0 - 0.5) / 1.5);
+            updFader('pit', 0.5);
+
             window.addEventListener('resize', function() { if (wfData) drawWF(); });
             startVis();
         });
     </script>
 </body>
 </html>
-
-
 
