@@ -204,26 +204,36 @@
         }
         .eq-val { font-family: var(--font-lcd); font-size: 10px; color: var(--text-secondary); width: 38px; text-align: right; flex-shrink: 0; }
 
-        .ctrl-faders { display: flex; gap: 12px; align-items: center; justify-content: center; flex: 1; }
-        .f-group { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .ctrl-faders { display: flex; gap: 16px; align-items: center; justify-content: center; flex: 1; }
+        .f-group { display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .f-lbl { font-family: var(--font-label); font-weight: 700; font-size: 10px; letter-spacing: 1.5px; color: var(--text-dim); }
+        .f-track-wrap {
+            position: relative; display: flex; align-items: center; justify-content: center;
+            /* Invisible touch zone wider than visual track */
+            width: 44px; height: 120px; cursor: pointer; touch-action: none;
+        }
         .f-track {
-            width: 8px; height: 110px; background: var(--bg-recess); border: 1px solid #111; border-radius: 4px;
-            position: relative; box-shadow: inset 0 2px 6px rgba(0,0,0,0.7); cursor: pointer; touch-action: none;
+            width: 8px; height: 100%; background: var(--bg-recess); border: 1px solid #111; border-radius: 4px;
+            position: relative; box-shadow: inset 0 2px 6px rgba(0,0,0,0.7);
+            pointer-events: none;
+        }
+        .f-track-wrap::before {
+            /* Expanded invisible hit area for easier touch */
+            content: ''; position: absolute; inset: -8px -6px; z-index: 1;
         }
         .f-fill { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 0 0 3px 3px; transition: height 0.04s; }
         .f-fill.vol-fill { background: linear-gradient(0deg, var(--led-green) 0%, var(--led-amber) 60%, var(--led-red) 85%, #ff0033 100%); }
         .f-fill.spd-fill { background: linear-gradient(0deg, var(--led-cyan) 0%, var(--led-magenta) 100%); }
         .f-fill.pit-fill { background: linear-gradient(0deg, var(--led-amber) 0%, var(--led-green) 50%, var(--led-amber) 100%); }
         .f-thumb {
-            position: absolute; left: 50%; transform: translate(-50%, 50%); width: 28px; height: 14px;
+            position: absolute; left: 50%; transform: translate(-50%, 50%); width: 36px; height: 18px;
             background: linear-gradient(180deg, #606880, #3a3d48 30%, #2a2d35 70%, #22252e);
-            border: 1px solid var(--border-bright); border-radius: 2px;
+            border: 1px solid var(--border-bright); border-radius: 3px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
-            cursor: grab; touch-action: none;
+            cursor: grab; touch-action: none; z-index: 2;
         }
         .f-thumb:active { cursor: grabbing; }
-        .f-thumb::after { content: ''; position: absolute; top: 50%; left: 3px; right: 3px; height: 1px; background: rgba(255,255,255,0.2); transform: translateY(-50%); }
+        .f-thumb::after { content: ''; position: absolute; top: 50%; left: 4px; right: 4px; height: 1px; background: rgba(255,255,255,0.2); transform: translateY(-50%); }
         .f-val { font-family: var(--font-lcd); font-size: 11px; color: var(--led-green); text-shadow: 0 0 3px rgba(0,230,118,0.25); transition: color 0.15s; }
         .f-val.hot { color: var(--led-amber); text-shadow: 0 0 6px rgba(255,171,0,0.4); }
         .f-val.clip { color: var(--led-red); text-shadow: 0 0 8px rgba(255,61,90,0.5); }
@@ -234,6 +244,21 @@
             height: 1px; background: rgba(255,255,255,0.2);
             pointer-events: none;
         }
+        /* ===== RESET BUTTONS ===== */
+        .f-rst {
+            font-family: var(--font-lcd); font-weight: 400; font-size: 9px; letter-spacing: 0.5px;
+            color: var(--text-dim); background: linear-gradient(180deg, #22252e, #1a1c24);
+            border: 1px solid var(--border-dim); border-radius: 3px;
+            padding: 4px 10px; cursor: pointer; white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+            transition: all 0.1s; min-width: 38px; text-align: center;
+            min-height: 28px; display: flex; align-items: center; justify-content: center;
+        }
+        .f-rst:active { transform: translateY(1px); box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
+        .f-rst:hover, .f-rst:active { color: var(--text-secondary); border-color: var(--border-mid); }
+        .f-rst.vol-rst:hover, .f-rst.vol-rst:active { color: var(--led-green); border-color: rgba(0,230,118,0.3); }
+        .f-rst.spd-rst:hover, .f-rst.spd-rst:active { color: var(--led-cyan); border-color: rgba(0,212,255,0.3); }
+        .f-rst.pit-rst:hover, .f-rst.pit-rst:active { color: var(--led-amber); border-color: rgba(255,171,0,0.3); }
 
         /* ===== FX PADS ===== */
         .pads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 3px var(--pad); }
@@ -302,10 +327,12 @@
             .eq-lbl { font-size: 12px; width: 30px; }
             .eq-val { font-size: 11px; width: 48px; }
             .eq-item { gap: 10px; }
-            .f-track { height: 160px; width: 10px; }
-            .f-thumb { width: 32px; height: 16px; }
+            .f-track-wrap { height: 160px; width: 48px; }
+            .f-track { width: 10px; }
+            .f-thumb { width: 36px; height: 18px; }
             .f-lbl { font-size: 11px; }
             .f-val { font-size: 12px; }
+            .f-rst { font-size: 10px; padding: 4px 12px; }
             .ctrl-faders { gap: 18px; }
             .pads { grid-template-columns: repeat(4, 1fr); gap: 5px; }
             .fx-pad { font-size: 10px; min-height: 42px; padding: 10px 4px; }
@@ -344,10 +371,12 @@
             .eq-lbl { font-size: 13px; width: 34px; }
             .eq-val { font-size: 12px; width: 52px; }
             .eq-item { gap: 12px; }
-            .f-track { height: 190px; width: 10px; }
-            .f-thumb { width: 36px; height: 18px; }
+            .f-track-wrap { height: 190px; width: 52px; }
+            .f-track { width: 10px; }
+            .f-thumb { width: 40px; height: 20px; }
             .f-lbl { font-size: 12px; }
             .f-val { font-size: 13px; }
+            .f-rst { font-size: 11px; padding: 5px 14px; min-height: 30px; }
             .ctrl-faders { gap: 26px; }
         }
     </style>
@@ -447,28 +476,37 @@
             <div class="ctrl-faders">
                 <div class="f-group">
                     <span class="f-lbl">VOL</span>
-                    <div class="f-track" id="ft-vol">
-                        <div class="f-fill vol-fill" id="ff-vol" style="height:50%"></div>
-                        <div class="f-thumb" id="fh-vol" style="bottom:50%"></div>
+                    <div class="f-track-wrap" id="ft-vol">
+                        <div class="f-track">
+                            <div class="f-fill vol-fill" id="ff-vol" style="height:50%"></div>
+                            <div class="f-thumb" id="fh-vol" style="bottom:50%"></div>
+                        </div>
                     </div>
                     <span class="f-val" id="fv-vol">75%</span>
+                    <button class="f-rst vol-rst" id="rst-vol">RST</button>
                 </div>
                 <div class="f-group">
                     <span class="f-lbl">SPD</span>
-                    <div class="f-track" id="ft-spd">
-                        <div class="f-fill spd-fill" id="ff-spd" style="height:33.3%"></div>
-                        <div class="f-thumb" id="fh-spd" style="bottom:33.3%"></div>
+                    <div class="f-track-wrap" id="ft-spd">
+                        <div class="f-track">
+                            <div class="f-fill spd-fill" id="ff-spd" style="height:33.3%"></div>
+                            <div class="f-thumb" id="fh-spd" style="bottom:33.3%"></div>
+                        </div>
                     </div>
                     <span class="f-val spd-val" id="fv-spd">1.00x</span>
+                    <button class="f-rst spd-rst" id="rst-spd">RST</button>
                 </div>
                 <div class="f-group">
                     <span class="f-lbl">PITCH</span>
-                    <div class="f-track" id="ft-pit">
-                        <div class="f-center-mark"></div>
-                        <div class="f-fill pit-fill" id="ff-pit" style="height:50%"></div>
-                        <div class="f-thumb" id="fh-pit" style="bottom:50%"></div>
+                    <div class="f-track-wrap" id="ft-pit">
+                        <div class="f-track">
+                            <div class="f-center-mark"></div>
+                            <div class="f-fill pit-fill" id="ff-pit" style="height:50%"></div>
+                            <div class="f-thumb" id="fh-pit" style="bottom:50%"></div>
+                        </div>
                     </div>
                     <span class="f-val pit-val" id="fv-pit">0 st</span>
+                    <button class="f-rst pit-rst" id="rst-pit">RST</button>
                 </div>
             </div>
         </div>
@@ -498,14 +536,21 @@
 
         /* ===== GRANULAR PITCH SHIFTER ===== */
         /*
-         * Uses two overlapping Hann-windowed grains that read from a
-         * circular buffer at a modified rate (pitchRatio).  The write
-         * pointer always advances at 1 sample/sample, so the *speed*
-         * of the audio is unchanged.  Only the pitch shifts.
+         * Four overlapping Hann-windowed grains (25 % phase offsets)
+         * read from a circular buffer at a modified rate.
          *
-         * readPos = writePos - (GRAIN - grainPhase) * pitchRatio
-         * This guarantees the read pointer never overshoots the write
-         * pointer, even for pitch-up (ratio > 1).
+         * KEY FORMULA:  readPos = wp - GRAIN + phase × (ratio − 1)
+         *
+         * At ratio = 1 every grain reads wp−GRAIN, advancing at the
+         * same rate as the write pointer → perfect reconstruction
+         * (output = input delayed by GRAIN samples).
+         *
+         * At ratio ≠ 1 the grains read faster/slower, shifting pitch
+         * without changing playback speed.
+         *
+         * The ratio is smoothed per-sample to prevent clicks on abrupt
+         * fader moves.  A pre-computed Hann table avoids repeated
+         * cos() calls in the hot loop.
          */
         var CIRC  = 65536;     /* circular buffer length (power of 2) */
         var CMASK = CIRC - 1;  /* bitmask for fast modulo */
@@ -517,7 +562,20 @@
             var cL = new Float32Array(CIRC);
             var cR = new Float32Array(CIRC);
             var wp  = 0;
-            var ph  = [0, Math.floor(GRAIN / 2)]; /* two grains, 50 % overlap */
+            /* 4 grains at 25 % phase offsets → smoother overlap-add */
+            var NUM_GRAINS = 4;
+            var ph  = new Float32Array(NUM_GRAINS);
+            for (var gi = 0; gi < NUM_GRAINS; gi++) {
+                ph[gi] = Math.floor(gi * GRAIN / NUM_GRAINS);
+            }
+            /* Pre-compute Hann window lookup table */
+            var hannTbl = new Float32Array(GRAIN);
+            for (var hi = 0; hi < GRAIN; hi++) {
+                hannTbl[hi] = 0.5 * (1 - Math.cos(6.283185307 * hi / GRAIN));
+            }
+            /* Smoothed ratio prevents clicks on abrupt fader moves */
+            var curRatio = 1.0;
+            var SMOOTH   = 0.002;  /* ~11 ms time constant @ 44.1 kHz */
 
             proc.onaudioprocess = function (e) {
                 var iL = e.inputBuffer.getChannelData(0);
@@ -527,37 +585,37 @@
                 var oR = e.outputBuffer.numberOfChannels > 1
                        ? e.outputBuffer.getChannelData(1) : oL;
                 var len = iL.length;
-                var r   = pitchRatio;
-
-                /* Fast-path: no pitch shift → passthrough */
-                if (r > 0.999 && r < 1.001) {
-                    for (var k = 0; k < len; k++) {
-                        cL[(wp + k) & CMASK] = iL[k];
-                        cR[(wp + k) & CMASK] = iR[k];
-                        oL[k] = iL[k];
-                        oR[k] = iR[k];
-                    }
-                    wp = (wp + len) & CMASK;
-                    return;
-                }
+                var targetR = pitchRatio;
 
                 for (var i = 0; i < len; i++) {
-                    cL[wp & CMASK] = iL[i];
-                    cR[wp & CMASK] = iR[i];
+                    /* Smooth ratio toward target each sample */
+                    curRatio += (targetR - curRatio) * SMOOTH;
+                    var r = curRatio;
+
+                    /* Write input into circular buffer */
+                    cL[wp] = iL[i];
+                    cR[wp] = iR[i];
 
                     var sL = 0, sR = 0;
 
-                    for (var g = 0; g < 2; g++) {
-                        /* Hann window */
-                        var t = ph[g] / GRAIN;
-                        var w = 0.5 * (1 - Math.cos(6.283185307 * t));
+                    for (var g = 0; g < NUM_GRAINS; g++) {
+                        var w = hannTbl[ph[g]];
 
-                        /* Read position: never ahead of write pointer */
-                        var rp = wp - (GRAIN - ph[g]) * r;
+                        /*
+                         * Corrected read position.
+                         * Old buggy formula:  wp − (GRAIN − phase) × r
+                         *   → read advances at (1 + r) per sample
+                         *   → at r = 1 audio plays at 2× inside each grain!
+                         *
+                         * Fixed formula:  wp − GRAIN + phase × (r − 1)
+                         *   → read advances at 1 + (r − 1) = r per sample ✓
+                         *   → at r = 1 all grains read wp−GRAIN (unity) ✓
+                         */
+                        var rp = wp - GRAIN + ph[g] * (r - 1);
                         var ri = Math.floor(rp);
                         var rf = rp - ri;
-                        var a  = ((ri    ) & CMASK + CIRC) & CMASK;
-                        var b  = ((ri + 1) & CMASK + CIRC) & CMASK;
+                        var a  = ri & CMASK;
+                        var b  = (ri + 1) & CMASK;
 
                         sL += (cL[a] + (cL[b] - cL[a]) * rf) * w;
                         sR += (cR[a] + (cR[b] - cR[a]) * rf) * w;
@@ -566,8 +624,9 @@
                         if (ph[g] >= GRAIN) ph[g] = 0;
                     }
 
-                    oL[i] = sL;
-                    oR[i] = sR;
+                    /* 4 Hann windows at 25 % overlap sum to 2.0 → ×0.5 for unity */
+                    oL[i] = sL * 0.5;
+                    oR[i] = sR * 0.5;
                     wp = (wp + 1) & CMASK;
                 }
             };
@@ -582,7 +641,7 @@
                 noTrack: '-- NO TRACK --', selectLib: 'SELECT FROM LIBRARY', bpm: 'BPM',
                 cue: 'CUE', play: 'PLAY', pause: 'PAUSE', prev: 'PREV', next: 'NEXT',
                 jog: 'JOG', hi: 'HI', mid: 'MID', lo: 'LO', vol: 'VOL', spd: 'SPD', pitch: 'PITCH',
-                library: 'LIBRARY', loadError: 'LOAD ERROR', trackUnavail: 'TRACK UNAVAILABLE',
+                rst: 'RST', library: 'LIBRARY', loadError: 'LOAD ERROR', trackUnavail: 'TRACK UNAVAILABLE',
                 devTag: 'Developed by JC33', toggleLbl: '繁中',
                 airhorn: 'AIRHORN', victory: 'VICTORY', drum: 'DRUM', suspense: 'SUSPENSE',
                 drop: 'DROP', fail: 'FAIL', rise: 'RISE', bonus: 'BONUS',
@@ -594,7 +653,7 @@
                 noTrack: '-- 未選取曲目 --', selectLib: '從曲庫選擇', bpm: 'BPM',
                 cue: '提示', play: '播放', pause: '暫停', prev: '上一首', next: '下一首',
                 jog: '轉盤', hi: '高音', mid: '中音', lo: '低音', vol: '音量', spd: '速度', pitch: '音高',
-                library: '曲庫', loadError: '載入錯誤', trackUnavail: '曲目無法使用',
+                rst: '重設', library: '曲庫', loadError: '載入錯誤', trackUnavail: '曲目無法使用',
                 devTag: '由 JC33 開發', toggleLbl: 'EN',
                 airhorn: '氣笛', victory: '勝利', drum: '鼓聲', suspense: '懸疑',
                 drop: '重低音', fail: '失敗', rise: '漸強', bonus: '獎勵',
@@ -906,16 +965,18 @@
 
         /* ===== FADER SETUP ===== */
         function setupFader(tid, cb) {
-            var tr = document.getElementById(tid);
+            var wrap = document.getElementById(tid);
+            /* Use inner .f-track for coordinate mapping (visual track height) */
+            var tr = wrap.querySelector('.f-track') || wrap;
             var drag = false;
             function cv(cy) { var r = tr.getBoundingClientRect(); return Math.max(0, Math.min(1, 1 - ((cy - r.top) / r.height))); }
             function s(cy, e) { e.preventDefault(); drag = true; cb(cv(cy)); }
             function m(cy, e) { if (!drag) return; e.preventDefault(); cb(cv(cy)); }
             function en() { drag = false; }
-            tr.addEventListener('mousedown', function(e) { s(e.clientY, e); });
+            wrap.addEventListener('mousedown', function(e) { s(e.clientY, e); });
             document.addEventListener('mousemove', function(e) { if (drag) m(e.clientY, e); });
             document.addEventListener('mouseup', en);
-            tr.addEventListener('touchstart', function(e) { if (e.touches[0]) s(e.touches[0].clientY, e); });
+            wrap.addEventListener('touchstart', function(e) { if (e.touches[0]) s(e.touches[0].clientY, e); });
             document.addEventListener('touchmove', function(e) { if (drag && e.touches[0]) { e.preventDefault(); m(e.touches[0].clientY, e); } }, { passive: false });
             document.addEventListener('touchend', en);
         }
@@ -1023,6 +1084,7 @@
             if (fLabels[0]) fLabels[0].textContent = t('vol');
             if (fLabels[1]) fLabels[1].textContent = t('spd');
             if (fLabels[2]) fLabels[2].textContent = t('pitch');
+            document.querySelectorAll('.f-rst').forEach(function(btn) { btn.textContent = t('rst'); });
             document.querySelector('.lib-lbl').textContent = t('library');
             document.querySelectorAll('.lib-card').forEach(function(card) {
                 var genre = card.getAttribute('data-genre');
@@ -1052,7 +1114,17 @@
             /* SPD fader: 0..1 → 0.5x..2.0x playback rate (pitch preserved by browser) */
             setupFader('ft-spd', function(v) { setSpeed(0.5 + v * 1.5); });
             /* PITCH fader: 0..1 → -12..+12 semitones (speed preserved by granular DSP) */
-            setupFader('ft-pit', function(v) { setPitch((v * 24) - 12); });
+            setupFader('ft-pit', function(v) {
+                var st = (v * 24) - 12;
+                /* Dead zone: snap to 0 when fader is near center for easy reset */
+                if (st > -0.5 && st < 0.5) st = 0;
+                setPitch(st);
+            });
+
+            /* RESET buttons — restore defaults */
+            document.getElementById('rst-vol').addEventListener('click', function() { setVol(0.5); });
+            document.getElementById('rst-spd').addEventListener('click', function() { setSpeed(1.0); });
+            document.getElementById('rst-pit').addEventListener('click', function() { setPitch(0); });
 
             setupEQSlider('k-hi', 'hi'); setupEQSlider('k-mid', 'mid'); setupEQSlider('k-lo', 'lo');
             updEQSlider('hi', 0); updEQSlider('mid', 0); updEQSlider('lo', 0);
@@ -1068,4 +1140,3 @@
     </script>
 </body>
 </html>
-
