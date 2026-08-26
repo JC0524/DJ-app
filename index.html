@@ -279,41 +279,39 @@
         }
         .eq-val { font-size: 11px; font-weight: 600; color: var(--text-secondary); width: 42px; text-align: right; flex-shrink: 0; }
 
-        .ctrl-faders { display: flex; gap: 18px; align-items: center; justify-content: center; flex: 1; }
+        .ctrl-faders { display: flex; gap: 26px; align-items: center; justify-content: center; flex: 1; }
         .f-group { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .f-lbl { font-weight: 700; font-size: 11px; color: var(--text-secondary); letter-spacing: 1px; }
+        .f-lbl { font-weight: 700; font-size: 13px; color: var(--text-secondary); letter-spacing: 1px; }
         .f-track-wrap {
             position: relative; display: flex; align-items: center; justify-content: center;
-            width: 44px; height: 120px; cursor: pointer; touch-action: none;
+            width: 60px; height: 150px; cursor: pointer; touch-action: none;
         }
         .f-track {
-            width: 10px; height: 100%;
+            width: 14px; height: 100%;
             background: var(--subtle); border: 2px solid var(--border-color);
-            border-radius: 6px; position: relative;
+            border-radius: 8px; position: relative;
             pointer-events: none;
         }
         .f-track-wrap::before {
-            content: ''; position: absolute; inset: -8px -6px; z-index: 1;
+            content: ''; position: absolute; inset: -10px -12px; z-index: 1;
         }
         .f-fill { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 0 0 4px 4px; transition: height 0.04s; }
         .f-fill.vol-fill { background: linear-gradient(0deg, var(--led-green) 0%, var(--led-amber) 70%, var(--led-red) 100%); }
         .f-fill.spd-fill { background: linear-gradient(0deg, var(--led-cyan) 0%, var(--accent-lavender) 100%); }
-        .f-fill.pit-fill { background: linear-gradient(0deg, var(--led-amber) 0%, var(--led-green) 50%, var(--led-amber) 100%); }
         .f-thumb {
             position: absolute; left: 50%; transform: translate(-50%, 50%);
-            width: 32px; height: 16px;
+            width: 42px; height: 22px;
             background: var(--bg-card);
             border: var(--border-w) solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 11px;
             cursor: grab; touch-action: none; z-index: 2;
         }
         .f-thumb:active { cursor: grabbing; }
-        .f-thumb::after { content: ''; position: absolute; top: 50%; left: 6px; right: 6px; height: 2px; background: var(--subtle-strong); transform: translateY(-50%); border-radius: 1px; }
-        .f-val { font-size: 12px; font-weight: 700; color: var(--led-green); transition: color 0.15s; }
+        .f-thumb::after { content: ''; position: absolute; top: 50%; left: 8px; right: 8px; height: 3px; background: var(--subtle-strong); transform: translateY(-50%); border-radius: 2px; }
+        .f-val { font-size: 14px; font-weight: 700; color: var(--led-green); transition: color 0.15s; }
         .f-val.hot { color: var(--led-amber); }
         .f-val.clip { color: var(--led-red); }
         .f-val.spd-val { color: var(--led-cyan); }
-        .f-val.pit-val { color: var(--led-amber); }
         .f-center-mark {
             position: absolute; left: 0; right: 0; bottom: 50%;
             height: 2px; background: var(--subtle-strong);
@@ -325,15 +323,14 @@
             font-family: var(--font-main); font-weight: 600; font-size: 10px;
             color: var(--text-secondary); background: var(--subtle);
             border: 2px solid var(--border-color); border-radius: 20px;
-            padding: 4px 12px; cursor: pointer; white-space: nowrap;
-            transition: all 0.1s; min-width: 38px; text-align: center;
-            min-height: 28px; display: flex; align-items: center; justify-content: center;
+            padding: 6px 14px; cursor: pointer; white-space: nowrap;
+            transition: all 0.1s; min-width: 48px; text-align: center;
+            min-height: 36px; display: flex; align-items: center; justify-content: center;
         }
         .f-rst:active { transform: scale(0.93); }
         .f-rst:hover, .f-rst:active { background: var(--subtle-strong); }
         .f-rst.vol-rst:hover, .f-rst.vol-rst:active { color: var(--led-green); border-color: var(--led-green); }
         .f-rst.spd-rst:hover, .f-rst.spd-rst:active { color: var(--led-cyan); border-color: var(--led-cyan); }
-        .f-rst.pit-rst:hover, .f-rst.pit-rst:active { color: var(--led-amber); border-color: var(--led-amber); }
 
         /* ===== FX PADS ===== */
         .pads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 6px var(--pad); }
@@ -405,12 +402,12 @@
             .eq-lbl { font-size: 13px; width: 34px; }
             .eq-val { font-size: 12px; width: 50px; }
             .eq-item { gap: 10px; }
-            .f-track-wrap { height: 160px; width: 48px; }
-            .f-thumb { width: 36px; height: 18px; }
-            .f-lbl { font-size: 12px; }
-            .f-val { font-size: 13px; }
-            .f-rst { font-size: 11px; padding: 5px 14px; }
-            .ctrl-faders { gap: 22px; }
+            .f-track-wrap { height: 180px; width: 64px; }
+            .f-thumb { width: 46px; height: 24px; }
+            .f-lbl { font-size: 14px; }
+            .f-val { font-size: 15px; }
+            .f-rst { font-size: 12px; padding: 6px 16px; min-height: 38px; }
+            .ctrl-faders { gap: 30px; }
             .pads { gap: 8px; }
             .fx-pad { font-size: 11px; min-height: 48px; padding: 12px 6px; }
             .t-btn { padding: 12px 4px; font-size: 14px; }
@@ -446,12 +443,12 @@
             .eq-lbl { font-size: 14px; width: 38px; }
             .eq-val { font-size: 13px; width: 54px; }
             .eq-item { gap: 14px; }
-            .f-track-wrap { height: 190px; width: 52px; }
-            .f-thumb { width: 40px; height: 20px; }
-            .f-lbl { font-size: 13px; }
-            .f-val { font-size: 14px; }
-            .f-rst { font-size: 12px; padding: 5px 16px; min-height: 32px; }
-            .ctrl-faders { gap: 28px; }
+            .f-track-wrap { height: 210px; width: 68px; }
+            .f-thumb { width: 50px; height: 26px; }
+            .f-lbl { font-size: 15px; }
+            .f-val { font-size: 16px; }
+            .f-rst { font-size: 13px; padding: 6px 18px; min-height: 40px; }
+            .ctrl-faders { gap: 36px; }
         }
     </style>
 </head>
@@ -574,18 +571,6 @@
                     <span class="f-val spd-val" id="fv-spd">1.00x</span>
                     <button class="f-rst spd-rst" id="rst-spd">RST</button>
                 </div>
-                <div class="f-group">
-                    <span class="f-lbl">PITCH</span>
-                    <div class="f-track-wrap" id="ft-pit">
-                        <div class="f-track">
-                            <div class="f-center-mark"></div>
-                            <div class="f-fill pit-fill" id="ff-pit" style="height:50%"></div>
-                            <div class="f-thumb" id="fh-pit" style="bottom:50%"></div>
-                        </div>
-                    </div>
-                    <span class="f-val pit-val" id="fv-pit">0 st</span>
-                    <button class="f-rst pit-rst" id="rst-pit">RST</button>
-                </div>
             </div>
         </div>
 
@@ -603,81 +588,12 @@
         /* ===== STATE ===== */
         var audioCtx = null, analyser = null, gainNode = null;
         var hiF = null, midF = null, loF = null, srcNode = null, audio = null;
-        var pitchProc = null;
-        var pitchRatio = 1.0;
-        var playing = false, curIdx = -1, vol = 0.5, speed = 1.0, pitch = 0;
+        var playing = false, curIdx = -1, vol = 0.5, speed = 1.0;
         var MAX_GAIN = 3.0;
         var eqH = 0, eqM = 0, eqL = 0;
         var activeFx = 0, origGain = 0;
         var wfData = null, rafId = null, jogA = 0;
         var curLang = 'en';
-
-        /* ===== GRANULAR PITCH SHIFTER ===== */
-        var CIRC  = 65536;
-        var CMASK = CIRC - 1;
-        var GRAIN = 2048;
-
-        function createPitchShifter(ctx) {
-            var proc = ctx.createScriptProcessor(4096, 2, 2);
-
-            var cL = new Float32Array(CIRC);
-            var cR = new Float32Array(CIRC);
-            var wp  = 0;
-            var NUM_GRAINS = 4;
-            var ph  = new Float32Array(NUM_GRAINS);
-            for (var gi = 0; gi < NUM_GRAINS; gi++) {
-                ph[gi] = Math.floor(gi * GRAIN / NUM_GRAINS);
-            }
-            var hannTbl = new Float32Array(GRAIN);
-            for (var hi = 0; hi < GRAIN; hi++) {
-                hannTbl[hi] = 0.5 * (1 - Math.cos(6.283185307 * hi / GRAIN));
-            }
-            var curRatio = 1.0;
-            var SMOOTH   = 0.002;
-
-            proc.onaudioprocess = function (e) {
-                var iL = e.inputBuffer.getChannelData(0);
-                var iR = e.inputBuffer.numberOfChannels > 1
-                       ? e.inputBuffer.getChannelData(1) : iL;
-                var oL = e.outputBuffer.getChannelData(0);
-                var oR = e.outputBuffer.numberOfChannels > 1
-                       ? e.outputBuffer.getChannelData(1) : oL;
-                var len = iL.length;
-                var targetR = pitchRatio;
-
-                for (var i = 0; i < len; i++) {
-                    curRatio += (targetR - curRatio) * SMOOTH;
-                    var r = curRatio;
-
-                    cL[wp] = iL[i];
-                    cR[wp] = iR[i];
-
-                    var sL = 0, sR = 0;
-
-                    for (var g = 0; g < NUM_GRAINS; g++) {
-                        var w = hannTbl[ph[g]];
-
-                        var rp = wp - GRAIN + ph[g] * (r - 1);
-                        var ri = Math.floor(rp);
-                        var rf = rp - ri;
-                        var a  = ri & CMASK;
-                        var b  = (ri + 1) & CMASK;
-
-                        sL += (cL[a] + (cL[b] - cL[a]) * rf) * w;
-                        sR += (cR[a] + (cR[b] - cR[a]) * rf) * w;
-
-                        ph[g]++;
-                        if (ph[g] >= GRAIN) ph[g] = 0;
-                    }
-
-                    oL[i] = sL * 0.5;
-                    oR[i] = sR * 0.5;
-                    wp = (wp + 1) & CMASK;
-                }
-            };
-
-            return proc;
-        }
 
         /* ===== I18N ===== */
         var i18n = {
@@ -685,7 +601,7 @@
                 logo: 'DJ MIXER', standby: 'STANDBY', playing: 'PLAYING', paused: 'PAUSED',
                 noTrack: '-- NO TRACK --', selectLib: 'SELECT FROM LIBRARY', bpm: 'BPM',
                 cue: 'CUE', play: 'PLAY', pause: 'PAUSE', prev: 'PREV', next: 'NEXT',
-                jog: 'JOG', hi: 'HI', mid: 'MID', lo: 'LO', vol: 'VOL', spd: 'SPD', pitch: 'PITCH',
+                jog: 'JOG', hi: 'HI', mid: 'MID', lo: 'LO', vol: 'VOL', spd: 'SPD',
                 rst: 'RST', library: 'LIBRARY', loadError: 'LOAD ERROR', trackUnavail: 'TRACK UNAVAILABLE',
                 devTag: 'Developed by JC33',
                 surprise: 'SURPRISE', victory: 'VICTORY', drum: 'DRUM', suspense: 'SUSPENSE',
@@ -697,7 +613,7 @@
                 logo: 'DJ 混音器', standby: '待機', playing: '播放中', paused: '已暫停',
                 noTrack: '-- 未選取曲目 --', selectLib: '從曲庫選擇', bpm: 'BPM',
                 cue: '提示', play: '播放', pause: '暫停', prev: '上一首', next: '下一首',
-                jog: '轉盤', hi: '高音', mid: '中音', lo: '低音', vol: '音量', spd: '速度', pitch: '音高',
+                jog: '轉盤', hi: '高音', mid: '中音', lo: '低音', vol: '音量', spd: '速度',
                 rst: '重設', library: '曲庫', loadError: '載入錯誤', trackUnavail: '曲目無法使用',
                 devTag: '由 JC33 開發',
                 surprise: '驚喜', victory: '勝利', drum: '鼓聲', suspense: '懸疑',
@@ -749,22 +665,13 @@
                 midF = audioCtx.createBiquadFilter(); midF.type = 'peaking'; midF.frequency.value = 1000; midF.Q.value = 0.7; midF.gain.value = 0;
                 loF = audioCtx.createBiquadFilter(); loF.type = 'lowshelf'; loF.frequency.value = 320; loF.gain.value = 0;
 
-                pitchProc = createPitchShifter(audioCtx);
-
                 audio = new Audio();
                 audio.crossOrigin = 'anonymous';
                 audio.loop = true;
 
-                audio.preservesPitch = true;
-                if (audio.preservesPitch === undefined) {
-                    audio.mozPreservesPitch = true;
-                    audio.webkitPreservesPitch = true;
-                }
-
                 srcNode = audioCtx.createMediaElementSource(audio);
 
-                srcNode.connect(pitchProc);
-                pitchProc.connect(loF);
+                srcNode.connect(loF);
                 loF.connect(midF);
                 midF.connect(hiF);
                 hiF.connect(analyser);
@@ -858,15 +765,6 @@
             if (audio) audio.playbackRate = speed;
             document.getElementById('fv-spd').textContent = speed.toFixed(2) + 'x';
             updFader('spd', (speed - 0.5) / 1.5);
-        }
-
-        /* ===== PITCH ===== */
-        function setPitch(semitones) {
-            pitch = Math.max(-12, Math.min(12, semitones));
-            pitchRatio = Math.pow(2, pitch / 12);
-            var sign = pitch > 0 ? '+' : '';
-            document.getElementById('fv-pit').textContent = sign + Math.round(pitch) + ' st';
-            updFader('pit', (pitch + 12) / 24);
         }
 
         function updFader(id, p) {
@@ -1114,7 +1012,6 @@
             var fLabels = document.querySelectorAll('.f-lbl');
             if (fLabels[0]) fLabels[0].textContent = t('vol');
             if (fLabels[1]) fLabels[1].textContent = t('spd');
-            if (fLabels[2]) fLabels[2].textContent = t('pitch');
             document.querySelectorAll('.f-rst').forEach(function(btn) { btn.textContent = t('rst'); });
             document.querySelector('.lib-lbl').textContent = t('library');
             document.querySelectorAll('.lib-card').forEach(function(card) {
@@ -1159,15 +1056,8 @@
 
             setupFader('ft-vol', setVol);
             setupFader('ft-spd', function(v) { setSpeed(0.5 + v * 1.5); });
-            setupFader('ft-pit', function(v) {
-                var st = (v * 24) - 12;
-                if (st > -0.5 && st < 0.5) st = 0;
-                setPitch(st);
-            });
-
             document.getElementById('rst-vol').addEventListener('click', function() { setVol(0.5); });
             document.getElementById('rst-spd').addEventListener('click', function() { setSpeed(1.0); });
-            document.getElementById('rst-pit').addEventListener('click', function() { setPitch(0); });
 
             setupEQSlider('k-hi', 'hi'); setupEQSlider('k-mid', 'mid'); setupEQSlider('k-lo', 'lo');
             updEQSlider('hi', 0); updEQSlider('mid', 0); updEQSlider('lo', 0);
@@ -1175,7 +1065,6 @@
 
             updFader('vol', 0.5);
             updFader('spd', (1.0 - 0.5) / 1.5);
-            updFader('pit', 0.5);
 
             window.addEventListener('resize', function() { if (wfData) drawWF(); });
             startVis();
@@ -1183,4 +1072,3 @@
     </script>
 </body>
 </html>
-
